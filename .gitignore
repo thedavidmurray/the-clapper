@@ -1,0 +1,27 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserdata
+*.xcworkspace/xcuserdata/
+xcuserdata/
+*.pbxuser
+*.perspectivev3
+!default.pbxuser
+!default.perspectivev3
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Dependencies
+Pods/
+Carthage/
+
+# Generated
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Simulator
+iOSInjectionProject/

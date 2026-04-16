@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>The Clapper needs microphone access to detect claps, snaps, and other audio gestures.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>The Clapper uses the camera to record video triggered by your gestures.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>The Clapper saves recorded videos to your photo library.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+</dict>
+</plist>
