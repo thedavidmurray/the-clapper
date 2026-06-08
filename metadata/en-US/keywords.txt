@@ -1,0 +1,1 @@
+clap,gesture,remote,hands-free,recording,camera,sound,audio,accessibility,timer

@@ -14,9 +14,6 @@ final class AudioMonitorService: ObservableObject {
     let transientDetected = PassthroughSubject<TransientEvent, Never>()
 
     struct TransientEvent {
-        let rms: Float
-        let peak: Float
-        let derivative: Float
         let timestamp: Date
     }
 
@@ -97,7 +94,7 @@ final class AudioMonitorService: ObservableObject {
         audioEngine?.inputNode.inputFormat(forBus: 0)
     }
 
-    private func processBuffer(_ buffer: AVAudioPCMBuffer, time: AVAudioTime) {
+    private func processBuffer(_ buffer: AVAudioPCMBuffer, time _: AVAudioTime) {
         guard let channelData = buffer.floatChannelData?[0] else { return }
         let frameLength = vDSP_Length(buffer.frameLength)
 
@@ -130,12 +127,7 @@ final class AudioMonitorService: ObservableObject {
             && (now - lastOnsetTime) > debounceInterval {
 
             lastOnsetTime = now
-            let event = TransientEvent(
-                rms: rms,
-                peak: peak,
-                derivative: derivative,
-                timestamp: Date()
-            )
+            let event = TransientEvent(timestamp: Date())
             transientDetected.send(event)
         }
     }
@@ -147,15 +139,15 @@ final class AudioMonitorService: ObservableObject {
         let stride = max(1, frameCount / targetCount)
         var result = [Float](repeating: 0, count: targetCount)
 
-        for i in 0..<targetCount {
-            let start = i * stride
+        for index in 0..<targetCount {
+            let start = index * stride
             let end = min(start + stride, frameCount)
             guard start < frameCount else { break }
 
             var maxVal: Float = 0
             let count = vDSP_Length(end - start)
             vDSP_maxmgv(data.advanced(by: start), 1, &maxVal, count)
-            result[i] = maxVal
+            result[index] = maxVal
         }
         return result
     }

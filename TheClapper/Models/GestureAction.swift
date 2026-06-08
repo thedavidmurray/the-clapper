@@ -39,6 +39,6 @@ struct GestureActionMapping: Codable, Identifiable {
         GestureActionMapping(gesture: .singleClap, action: .none),
         GestureActionMapping(gesture: .doubleClap, action: .startStopRecording),
         GestureActionMapping(gesture: .tripleClap, action: .takePhoto),
-        GestureActionMapping(gesture: .snap, action: .toggleFlashlight),
+        GestureActionMapping(gesture: .snap, action: .toggleFlashlight)
     ]
 }

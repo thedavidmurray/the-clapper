@@ -1,0 +1,1 @@
+Initial release. Clap detection, photo capture, video recording, stopwatch timer, flashlight toggle, and configurable gesture mapping. Two-stage detection for near-zero false positives. All processing on-device.

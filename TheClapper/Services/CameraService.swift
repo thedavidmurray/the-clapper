@@ -13,7 +13,6 @@ final class CameraService: NSObject, ObservableObject {
 
     private var movieOutput = AVCaptureMovieFileOutput()
     private var photoOutput = AVCapturePhotoOutput()
-    private var currentOutputURL: URL?
     private var durationTimer: Timer?
 
     override init() {
@@ -85,7 +84,6 @@ final class CameraService: NSObject, ObservableObject {
             .appendingPathComponent("clapper_\(Date().timeIntervalSince1970)")
             .appendingPathExtension("mov")
 
-        currentOutputURL = outputURL
         movieOutput.startRecording(to: outputURL, recordingDelegate: self)
 
         DispatchQueue.main.async {
@@ -139,7 +137,12 @@ final class CameraService: NSObject, ObservableObject {
 }
 
 extension CameraService: AVCaptureFileOutputRecordingDelegate {
-    func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+    func fileOutput(
+        _ output: AVCaptureFileOutput,
+        didFinishRecordingTo outputFileURL: URL,
+        from connections: [AVCaptureConnection],
+        error: Error?
+    ) {
         DispatchQueue.main.async {
             self.isRecording = false
         }

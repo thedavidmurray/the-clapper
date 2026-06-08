@@ -1,0 +1,61 @@
+identifier_name:
+  min_length:
+    warning: 2
+    error: 1
+  max_length:
+    warning: 40
+    error: 60
+  allowed_symbols:
+    - "_"
+  excluded:
+    - id
+    - i
+    - x
+    - y
+    - z
+    - a
+    - b
+    - c
+    - r
+    - g
+    - t
+    - xs
+    - sm
+    - md
+    - lg
+    - xl
+    - xxl
+    - xxxl
+    - ok
+    - up
+    - db
+    - to
+    - at
+    - of
+    - in
+    - on
+    - is
+    - as
+    - if
+    - or
+    - no
+    - go
+
+line_length:
+  warning: 120
+  error: 150
+  ignores_function_declarations: true
+  ignores_comments: true
+  ignores_urls: true
+
+trailing_comma:
+  mandatory_comma: false
+
+multiple_closures_with_trailing_closure:
+  severity: warning
+
+excluded:
+  - build
+  - DerivedData
+  - .build
+  - "*.generated.swift"

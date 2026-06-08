@@ -75,7 +75,7 @@ struct HomeView: View {
             Spacer()
 
             // Listen button
-            Button(action: { viewModel.toggleListening() }) {
+            Button(action: { viewModel.toggleListening() }, label: {
                 HStack(spacing: Spacing.md) {
                     Image(systemName: viewModel.isListening ? "mic.fill" : "mic.slash.fill")
                     Text(viewModel.isListening ? "Listening" : "Start Listening")
@@ -86,7 +86,7 @@ struct HomeView: View {
                 .frame(height: 52)
                 .background(viewModel.isListening ? Color.edgelessAccent : Color.edgelessSurfaceLight)
                 .clipShape(RoundedRectangle(cornerRadius: 14))
-            }
+            })
             .padding(.horizontal, Spacing.lg)
 
             // Recording duration

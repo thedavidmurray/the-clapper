@@ -25,3 +25,14 @@ Carthage/
 
 # Simulator
 iOSInjectionProject/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+fastlane/profiles/
+
+# Bundler
+vendor/bundle/
+.bundle/

@@ -14,14 +14,14 @@ struct CameraView: View {
             VStack {
                 HStack {
                     // Back button
-                    Button(action: { }) {
+                    Button(action: { }, label: {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 20, weight: .medium))
                             .foregroundStyle(.white)
                             .padding(Spacing.md)
                             .background(.ultraThinMaterial)
                             .clipShape(Circle())
-                    }
+                    })
 
                     Spacer()
 
@@ -45,14 +45,14 @@ struct CameraView: View {
                     Spacer()
 
                     // Switch camera
-                    Button(action: { viewModel.cameraService.switchCamera() }) {
+                    Button(action: { viewModel.cameraService.switchCamera() }, label: {
                         Image(systemName: "camera.rotate")
                             .font(.system(size: 20, weight: .medium))
                             .foregroundStyle(.white)
                             .padding(Spacing.md)
                             .background(.ultraThinMaterial)
                             .clipShape(Circle())
-                    }
+                    })
                 }
                 .padding(.horizontal, Spacing.lg)
                 .padding(.top, Spacing.sm)
@@ -76,7 +76,7 @@ struct CameraView: View {
                     .onTapGesture { viewModel.toggleListening() }
 
                     // Record button (manual)
-                    Button(action: { viewModel.cameraService.toggleRecording() }) {
+                    Button(action: { viewModel.cameraService.toggleRecording() }, label: {
                         ZStack {
                             Circle()
                                 .stroke(.white, lineWidth: 4)
@@ -92,7 +92,7 @@ struct CameraView: View {
                                     .frame(width: 60, height: 60)
                             }
                         }
-                    }
+                    })
 
                     // Last gesture
                     VStack(spacing: Spacing.xs) {

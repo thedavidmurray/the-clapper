@@ -25,15 +25,6 @@ enum GestureType: String, CaseIterable, Codable, Identifiable {
         case .snap: return "hand.point.up.left"
         }
     }
-
-    var requiredEvents: Int {
-        switch self {
-        case .singleClap: return 1
-        case .doubleClap: return 2
-        case .tripleClap: return 3
-        case .snap: return 1
-        }
-    }
 }
 
 struct DetectedGesture: Identifiable {

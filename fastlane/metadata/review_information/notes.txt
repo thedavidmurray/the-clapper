@@ -1,0 +1,11 @@
+This app requires microphone access for audio gesture detection (claps, snaps) and camera access for video recording. The app uses Apple's built-in SoundAnalysis framework (SNClassifySoundRequest with .version1 classifier) for on-device ML classification. No custom ML models are included. No audio is recorded, stored, or transmitted for detection. No account or sign-in required.
+
+To test:
+1. Launch the app
+2. Grant microphone permission when prompted
+3. From the Home tab, tap "Start Listening"
+4. Clap twice — the app will detect the double clap gesture and toggle video recording
+5. Navigate to the Camera tab to test gesture-triggered recording with the camera permission
+6. Settings tab lets the reviewer remap any gesture to any action
+
+No demo account needed.

@@ -44,7 +44,7 @@ struct WaveformView: View {
 
             // Bar waveform from real samples
             if isListening {
-                WaveformBars(samples: waveformSamples, color: barColor, isRecording: isRecording)
+                WaveformBars(samples: waveformSamples, color: barColor)
                     .frame(height: 48)
                     .padding(.horizontal, Spacing.xl)
             }
@@ -78,7 +78,6 @@ struct WaveformView: View {
 struct WaveformBars: View {
     let samples: [Float]
     let color: Color
-    let isRecording: Bool
 
     var body: some View {
         GeometryReader { geometry in

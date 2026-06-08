@@ -1,0 +1,211 @@
+default_platform(:ios)
+
+ASC_KEY_PATH = ENV["ASC_API_KEY_PATH"] || File.expand_path("~/.appstoreconnect/private_keys/AuthKey_#{ENV['ASC_KEY_ID']}.p8")
+
+def asc_api_key
+  app_store_connect_api_key(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    key_filepath: ASC_KEY_PATH,
+    in_house: false,
+  )
+end
+
+platform :ios do
+  desc "Register com.edgeless.theclapper on App Store Connect (idempotent)"
+  lane :register_app do
+    require "spaceship"
+
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      filepath: ASC_KEY_PATH,
+    )
+
+    bundle_identifier = "com.edgeless.theclapper"
+
+    existing_bundle = Spaceship::ConnectAPI::BundleId.find(bundle_identifier)
+    if existing_bundle
+      UI.message("Bundle ID #{bundle_identifier} already registered (#{existing_bundle.id})")
+    else
+      created = Spaceship::ConnectAPI::BundleId.create(
+        name: "TheClapper",
+        identifier: bundle_identifier,
+        platform: "IOS",
+      )
+      UI.success("Registered bundle ID #{bundle_identifier} (#{created.id})")
+    end
+
+    existing_app = Spaceship::ConnectAPI::App.find(bundle_identifier)
+    if existing_app
+      UI.success("ASC app record found for #{bundle_identifier} (#{existing_app.id})")
+    else
+      UI.important("ASC app record does NOT exist. Apple's API forbids creating apps programmatically.")
+      UI.important("Create it manually:")
+      UI.important("  1. Open https://appstoreconnect.apple.com/apps")
+      UI.important("  2. Click + > New App")
+      UI.important("  3. Platform: iOS | Name: The Clapper | Language: English (U.S.)")
+      UI.important("  4. Bundle ID: com.edgeless.theclapper (already registered)")
+      UI.important("  5. SKU: theclapper | Access: Full Access")
+      UI.user_error!("Re-run this lane after creating the app record.")
+    end
+  end
+
+  desc "Fetch / create distribution provisioning profile"
+  lane :certs do
+    get_provisioning_profile(
+      api_key: asc_api_key,
+      app_identifier: "com.edgeless.theclapper",
+      filename: "TheClapper_AppStore.mobileprovision",
+      output_path: "./fastlane/profiles",
+    )
+  end
+
+  desc "Build a signed app-store IPA (no upload)"
+  lane :archive_ipa do
+    build_app(
+      project: "TheClapper.xcodeproj",
+      scheme: "TheClapper",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "./build",
+      output_name: "TheClapper.ipa",
+      clean: true,
+      export_options: {
+        method: "app-store",
+        signingStyle: "manual",
+        teamID: "9BKHLSZVGF",
+        provisioningProfiles: {
+          "com.edgeless.theclapper" => "TheClapper App Store Distribution",
+        },
+      },
+      xcargs: [
+        "-allowProvisioningUpdates",
+        "CODE_SIGN_STYLE=Manual",
+        "CODE_SIGN_IDENTITY='Apple Distribution'",
+        "DEVELOPMENT_TEAM=9BKHLSZVGF",
+        "PROVISIONING_PROFILE_SPECIFIER='TheClapper App Store Distribution'",
+      ].join(" "),
+    )
+  end
+
+  desc "Build + upload to TestFlight"
+  lane :beta do
+    increment_build_number(xcodeproj: "TheClapper.xcodeproj")
+    archive_ipa
+    upload_to_testflight(
+      api_key: asc_api_key,
+      skip_waiting_for_build_processing: true,
+    )
+  end
+
+  desc "Push metadata + screenshots to the App Store listing (no submit, no binary)"
+  lane :push_listing do
+    deliver(
+      api_key: asc_api_key,
+      app_identifier: "com.edgeless.theclapper",
+      metadata_path: "./metadata",
+      screenshots_path: "./fastlane/screenshots",
+      submit_for_review: false,
+      skip_binary_upload: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      overwrite_screenshots: true,
+      force: true,
+      run_precheck_before_submit: false,
+      precheck_include_in_app_purchases: false,
+    )
+  end
+
+  desc "Verify the editable App Store version is ready to submit"
+  lane :verify_listing do
+    require "spaceship"
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+      key_id: ENV.fetch("ASC_KEY_ID"),
+      issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+      filepath: ASC_KEY_PATH,
+    )
+    app = Spaceship::ConnectAPI::App.find("com.edgeless.theclapper")
+    UI.user_error!("App record not found") unless app
+
+    ver = app.get_edit_app_store_version
+    UI.user_error!("No editable version (nothing in PREPARE_FOR_SUBMISSION)") unless ver
+    UI.message("Version: #{ver.version_string}  state=#{ver.app_store_state}")
+
+    build = ver.build
+    UI.message("Build attached: #{build ? build.version : 'NONE'}")
+
+    locs = ver.get_app_store_version_localizations
+    en = locs.find { |l| l.locale == "en-US" } || locs.first
+    shots = en ? en.get_app_screenshot_sets : []
+    total = shots.sum { |s| (s.app_screenshots || []).count }
+    UI.message("Screenshot sets (#{en&.locale}): #{shots.map { |s| "#{s.screenshot_display_type}=#{(s.app_screenshots || []).count}" }.join(', ')}")
+    UI.message("Description present: #{!(en&.description.to_s.strip.empty?)}  Keywords present: #{!(en&.keywords.to_s.strip.empty?)}")
+
+    ok = ver && build && total > 0
+    UI.message("--- READINESS: #{ok ? 'READY ✅' : 'NOT READY ❌'} (build=#{!build.nil?}, screenshots=#{total}) ---")
+  end
+
+  desc "Diagnose why the version is not in a submittable state"
+  lane :diagnose_submit do
+    require "spaceship"
+    Spaceship::ConnectAPI.token = Spaceship::ConnectAPI::Token.create(
+      key_id: ENV.fetch("ASC_KEY_ID"), issuer_id: ENV.fetch("ASC_ISSUER_ID"), filepath: ASC_KEY_PATH,
+    )
+    app = Spaceship::ConnectAPI::App.find("com.edgeless.theclapper")
+    ver = app.get_edit_app_store_version
+    UI.message(">> version #{ver.version_string} state=#{ver.app_store_state}")
+
+    build = ver.build
+    if build
+      full = Spaceship::ConnectAPI::Build.get(build_id: build.id, includes: "buildBetaDetail,betaBuildLocalizations")
+      UI.message(">> build #{build.version} usesNonExemptEncryption=#{build.uses_non_exempt_encryption.inspect}")
+    end
+
+    begin
+      ard = ver.fetch_age_rating_declaration
+      UI.message(">> ageRatingDeclaration present=#{!ard.nil?}")
+    rescue => e
+      UI.message(">> ageRating fetch error: #{e.message}")
+    end
+
+    begin
+      idfa = ver.fetch_idfa_declaration rescue nil
+      UI.message(">> idfaDeclaration present=#{!idfa.nil?}")
+    rescue => e
+      UI.message(">> idfa: #{e.message}")
+    end
+
+    # App-level App Privacy (data collection) — published?
+    begin
+      privacy = app.fetch_app_store_version_phased_release rescue nil
+    rescue => e
+    end
+    UI.message(">> NOTE: App Privacy (data collection) status is web-only and not always API-visible.")
+
+    begin
+      info = app.fetch_edit_app_info
+      UI.message(">> AppInfo state=#{info.app_info_state rescue info.state rescue 'n/a'}")
+      pc = info.primary_category rescue nil
+      sc = info.secondary_category rescue nil
+      UI.message(">> primaryCategory=#{pc&.id || pc.inspect}  secondaryCategory=#{sc&.id || sc.inspect}")
+      ard = info.fetch_age_rating_declaration rescue nil
+      UI.message(">> AppInfo ageRatingDeclaration present=#{!ard.nil?}")
+    rescue => e
+      UI.message(">> AppInfo error: #{e.message}")
+    end
+  end
+
+  desc "Submit current TestFlight build for App Store review"
+  lane :release do
+    deliver(
+      api_key: asc_api_key,
+      submit_for_review: true,
+      automatic_release: false,
+      force: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      precheck_include_in_app_purchases: false,
+    )
+  end
+end

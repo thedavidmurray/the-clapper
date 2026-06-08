@@ -178,14 +178,14 @@ final class ClapperViewModel: ObservableObject {
     private func applySensitivity() {
         // Map 0.0-1.0 sensitivity to threshold values (inverse relationship)
         // High sensitivity = low thresholds
-        audioMonitor.onsetThreshold = lerp(from: 0.25, to: 0.04, t: sensitivity)
-        audioMonitor.minimumAmplitude = lerp(from: 0.15, to: 0.03, t: sensitivity)
-        audioMonitor.debounceInterval = TimeInterval(lerp(from: 0.25, to: 0.10, t: sensitivity))
+        audioMonitor.onsetThreshold = lerp(from: 0.25, to: 0.04, fraction: sensitivity)
+        audioMonitor.minimumAmplitude = lerp(from: 0.15, to: 0.03, fraction: sensitivity)
+        audioMonitor.debounceInterval = TimeInterval(lerp(from: 0.25, to: 0.10, fraction: sensitivity))
         saveSensitivity()
     }
 
-    private func lerp(from a: Float, to b: Float, t: Float) -> Float {
-        a + (b - a) * t
+    private func lerp(from start: Float, to end: Float, fraction: Float) -> Float {
+        start + (end - start) * fraction
     }
 
     private func saveSensitivity() {

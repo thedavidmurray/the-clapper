@@ -127,13 +127,13 @@ struct GestureMappingRow: View {
             Spacer()
 
             // Action picker
-            Menu {
+            Menu(content: {
                 ForEach(ActionType.allCases) { action in
-                    Button(action: { onActionChanged(action) }) {
+                    Button(action: { onActionChanged(action) }, label: {
                         Label(action.displayName, systemImage: action.icon)
-                    }
+                    })
                 }
-            } label: {
+            }, label: {
                 HStack(spacing: Spacing.xs) {
                     Image(systemName: mapping.action.icon)
                         .font(.system(size: 14))
@@ -145,7 +145,7 @@ struct GestureMappingRow: View {
                 .padding(.vertical, Spacing.sm)
                 .background(Color.edgelessSurface)
                 .clipShape(Capsule())
-            }
+            })
         }
         .padding(Spacing.base)
         .background(Color.edgelessSurface)

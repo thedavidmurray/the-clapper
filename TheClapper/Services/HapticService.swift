@@ -4,8 +4,6 @@ import UIKit
 struct HapticService {
     private let lightImpact = UIImpactFeedbackGenerator(style: .light)
     private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
-    private let heavyImpact = UIImpactFeedbackGenerator(style: .heavy)
-    private let notification = UINotificationFeedbackGenerator()
 
     func transientDetected() {
         lightImpact.impactOccurred()
@@ -13,17 +11,5 @@ struct HapticService {
 
     func gestureConfirmed() {
         mediumImpact.impactOccurred()
-    }
-
-    func recordingStarted() {
-        heavyImpact.impactOccurred()
-    }
-
-    func recordingStopped() {
-        notification.notificationOccurred(.success)
-    }
-
-    func error() {
-        notification.notificationOccurred(.error)
     }
 }

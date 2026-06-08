@@ -19,7 +19,6 @@ final class GestureRecognizerService: ObservableObject {
     private var lastClassificationTime: Date = .distantPast
 
     private var pendingTimer: Timer?
-    private var cancellables = Set<AnyCancellable>()
 
     // Timing thresholds (seconds)
     private let maxInterClapInterval: TimeInterval = 0.5

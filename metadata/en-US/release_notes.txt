@@ -1,0 +1,1 @@
+Initial release. Clap detection, photo capture, video recording, stopwatch timer, flashlight toggle, configurable gesture mapping.
