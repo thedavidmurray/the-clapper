@@ -55,6 +55,23 @@ struct SettingsView: View {
                     .padding(Spacing.base)
                     .background(Color.edgelessSurface)
                     .clipShape(RoundedRectangle(cornerRadius: Radius.md))
+
+                    // Background Listening — off by default
+                    VStack(alignment: .leading, spacing: Spacing.sm) {
+                        Toggle(isOn: $viewModel.backgroundListeningEnabled) {
+                            Text("Background Listening")
+                                .font(.edgelessBody)
+                                .foregroundStyle(Color.edgelessTextPrimary)
+                        }
+                        .tint(Color.edgelessAccent)
+
+                        Text("Keep detecting gestures while the app isn't open. Most people leave this OFF — it keeps the microphone active and drains extra battery. Turn it on only if you want claps to trigger actions when you're not in the app.")
+                            .font(.edgelessCaption)
+                            .foregroundStyle(Color.edgelessTextSecondary)
+                    }
+                    .padding(Spacing.base)
+                    .background(Color.edgelessSurface)
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.md))
                 }
 
                 Divider().background(Color.edgelessSurface)

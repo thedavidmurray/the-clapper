@@ -4,6 +4,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var viewModel = ClapperViewModel()
     @State private var selectedTab = 0
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -40,6 +41,13 @@ struct ContentView: View {
         .tint(Color.edgelessAccent)
         .task {
             await viewModel.requestPermissions()
+        }
+        .onChange(of: scenePhase) { newPhase in
+            // Release the mic when leaving the foreground unless the user opted
+            // into Background Listening. (single-arg onChange = works iOS 14+)
+            if newPhase == .background {
+                viewModel.handleEnteredBackground()
+            }
         }
     }
 }

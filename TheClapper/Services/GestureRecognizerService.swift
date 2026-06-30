@@ -20,13 +20,18 @@ final class GestureRecognizerService: ObservableObject {
 
     private var pendingTimer: Timer?
 
-    // Timing thresholds (seconds)
-    private let maxInterClapInterval: TimeInterval = 0.5
+    // Timing thresholds (seconds). Inter-clap widened to 0.6 — 0.5 was too tight
+    // for a natural double-clap, so the second clap fell outside the window.
+    private let maxInterClapInterval: TimeInterval = 0.6
     private let patternWaitTime: TimeInterval = 0.65
 
-    // Classification labels that count as "clap-like"
+    // Labels that count as "clap-like" for confidence. v1 counts onsets for
+    // single/double/triple and treats any sharp transient as a clap; Apple's
+    // built-in classifier frequently mislabels claps as "finger_snapping", so we
+    // accept it here too (purely to keep the confidence value reasonable).
+    // Distinct clap-vs-snap detection returns in v2 via a custom CreateML model.
     private static let clapLabels: Set<String> = [
-        "applause", "clapping", "hands", "slap", "tap", "knock"
+        "applause", "clapping", "hands", "slap", "tap", "knock", "finger_snapping"
     ]
     private static let snapLabels: Set<String> = [
         "finger_snapping"
@@ -61,10 +66,12 @@ final class GestureRecognizerService: ObservableObject {
         lastClassificationConfidence = confidence
         lastClassificationTime = Date()
 
-        // If it's a snap, emit immediately (snaps are single events)
-        if Self.snapLabels.contains(label) && confidence > 0.4 {
-            emitGesture(.snap, confidence: confidence)
-        }
+        // v1: do NOT emit a snap here. Apple's built-in classifier confuses claps
+        // and finger-snaps, and emitting a snap immediately short-circuited the
+        // multi-clap window — so double/triple claps never resolved. Onset count
+        // in resolveSequence() is now the single source of truth; classification
+        // only informs the confidence value. (Snap as a distinct gesture returns
+        // in v2 with a custom CreateML sound model.)
     }
 
     private func resolveSequence() {

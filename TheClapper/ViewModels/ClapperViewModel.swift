@@ -30,6 +30,13 @@ final class ClapperViewModel: ObservableObject {
         didSet { applySensitivity() }
     }
 
+    /// When OFF (default), the mic is released the moment the app leaves the
+    /// foreground. When ON, listening continues in the background (extra battery,
+    /// mic stays active). Surfaced as a Settings toggle with an explanation.
+    @Published var backgroundListeningEnabled: Bool = false {
+        didSet { UserDefaults.standard.set(backgroundListeningEnabled, forKey: "clapper_background_listening") }
+    }
+
     // Services
     let audioMonitor = AudioMonitorService()
     let soundClassifier = SoundClassifierService()
@@ -46,6 +53,7 @@ final class ClapperViewModel: ObservableObject {
 
     init() {
         loadSensitivity()
+        backgroundListeningEnabled = UserDefaults.standard.bool(forKey: "clapper_background_listening")
         applySensitivity()
         setupBindings()
     }
@@ -112,17 +120,30 @@ final class ClapperViewModel: ObservableObject {
         cameraService.$recordingDuration
             .receive(on: DispatchQueue.main)
             .assign(to: &$recordingDuration)
+
+        // Re-publish mapping changes from the nested ActionDispatcher so views
+        // observing the view model (SettingsView) actually refresh when the user
+        // picks a new action. Without this the model updated but the UI showed the
+        // old value — i.e. "the dropdown won't change". Only $mappings is forwarded
+        // (not the dispatcher's timer ticks), so it stays cheap.
+        actionDispatcher.$mappings
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
     }
 
     func requestPermissions() async {
+        // Only request permission here. The audio session is activated in
+        // startListening() and deactivated in stopListening(), so the mic is
+        // never held while we're not actively listening.
         hasMicPermission = await AudioSessionService.requestMicrophonePermission()
-        if hasMicPermission {
-            AudioSessionService.configure()
-        }
     }
 
     func startListening() {
         guard hasMicPermission, !isListening else { return }
+
+        // Acquire the mic right before the engine starts.
+        AudioSessionService.activate()
 
         guard let engine = audioMonitor.startListening(),
               let format = audioMonitor.inputFormat else { return }
@@ -160,9 +181,19 @@ final class ClapperViewModel: ObservableObject {
     func stopListening() {
         audioMonitor.stopListening()
         soundClassifier.reset()
+        // Release the microphone so the orange "in use" indicator clears.
+        AudioSessionService.deactivate()
         currentAmplitude = 0
         waveformSamples = Array(repeating: 0, count: 64)
         lastClassification = ""
+    }
+
+    /// Called when the app enters the background. By default we stop listening
+    /// (releasing the mic); if Background Listening is enabled we keep going.
+    func handleEnteredBackground() {
+        if !backgroundListeningEnabled && isListening {
+            stopListening()
+        }
     }
 
     func toggleListening() {
