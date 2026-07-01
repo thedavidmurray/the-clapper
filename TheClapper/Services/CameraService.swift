@@ -14,6 +14,9 @@ final class CameraService: NSObject, ObservableObject {
     private var movieOutput = AVCaptureMovieFileOutput()
     private var photoOutput = AVCapturePhotoOutput()
     private var durationTimer: Timer?
+    /// True when the current recording was started by a gesture → auto-trim the
+    /// clap moments off the ends when it finishes.
+    private var trimOnFinish = false
 
     override init() {
         super.init()
@@ -69,16 +72,19 @@ final class CameraService: NSObject, ObservableObject {
         DispatchQueue.main.async { self.isSessionRunning = false }
     }
 
-    func toggleRecording() {
+    /// `gestureTriggered` = started by a clap → auto-trim the clap moments off the
+    /// ends when it finishes. The manual record button passes false.
+    func toggleRecording(gestureTriggered: Bool = false) {
         if isRecording {
             stopRecording()
         } else {
-            startRecording()
+            startRecording(gestureTriggered: gestureTriggered)
         }
     }
 
-    func startRecording() {
+    func startRecording(gestureTriggered: Bool = false) {
         guard !isRecording else { return }
+        trimOnFinish = gestureTriggered
 
         let outputURL = FileManager.default.temporaryDirectory
             .appendingPathComponent("clapper_\(Date().timeIntervalSince1970)")
@@ -113,26 +119,67 @@ final class CameraService: NSObject, ObservableObject {
     }
 
     func switchCamera() {
+        // Read the current VIDEO input + its position BEFORE removing anything.
+        // (Old bug: position was read from inputs.first AFTER removal — that was the
+        // audio input, position .unspecified -> it never actually flipped.)
+        guard let currentVideoInput = captureSession.inputs
+            .compactMap({ $0 as? AVCaptureDeviceInput })
+            .first(where: { $0.device.hasMediaType(.video) }) else { return }
+
+        let newPosition: AVCaptureDevice.Position =
+            currentVideoInput.device.position == .front ? .back : .front
+
+        guard let newDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: newPosition),
+              let newInput = try? AVCaptureDeviceInput(device: newDevice) else { return }
+
         captureSession.beginConfiguration()
-
-        // Remove current video input
-        if let currentInput = captureSession.inputs.first(where: { input in
-            (input as? AVCaptureDeviceInput)?.device.hasMediaType(.video) == true
-        }) {
-            captureSession.removeInput(currentInput)
-        }
-
-        // Determine new position
-        let currentPosition = (captureSession.inputs.first as? AVCaptureDeviceInput)?.device.position ?? .back
-        let newPosition: AVCaptureDevice.Position = currentPosition == .back ? .front : .back
-
-        if let newDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: newPosition),
-           let newInput = try? AVCaptureDeviceInput(device: newDevice),
-           captureSession.canAddInput(newInput) {
+        captureSession.removeInput(currentVideoInput)
+        if captureSession.canAddInput(newInput) {
             captureSession.addInput(newInput)
+        } else {
+            captureSession.addInput(currentVideoInput) // revert if the new device can't be added
         }
-
         captureSession.commitConfiguration()
+    }
+
+    // MARK: - Auto-trim (strip the clap moments that bracket a gesture recording)
+
+    private func saveToLibrary(_ url: URL) {
+        DispatchQueue.main.async {
+            UISaveVideoAtPathToSavedPhotosAlbum(url.path, nil, nil, nil)
+        }
+    }
+
+    /// Trims the ends off a gesture-triggered clip. Recording *starts* ~0.65s after
+    /// the start-claps (so they're already gone), but *stops* ~0.65s after the
+    /// stop-claps — so the stop clap sits near the tail. Trim a small head + a
+    /// larger tail. Falls back to the raw clip if it's too short or export fails.
+    private func trimClapEndsAndSave(_ url: URL, head: Double = 0.15, tail: Double = 0.9) {
+        Task {
+            let asset = AVURLAsset(url: url)
+            let duration = (try? await asset.load(.duration)) ?? .zero
+            let seconds = duration.seconds
+            guard seconds.isFinite, seconds > head + tail + 0.5 else {
+                self.saveToLibrary(url); return
+            }
+            let range = CMTimeRange(
+                start: CMTime(seconds: head, preferredTimescale: 600),
+                end: CMTime(seconds: seconds - tail, preferredTimescale: 600)
+            )
+            let outURL = FileManager.default.temporaryDirectory
+                .appendingPathComponent("clapper_trim_\(Int(Date().timeIntervalSince1970))")
+                .appendingPathExtension("mov")
+            guard let export = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else {
+                self.saveToLibrary(url); return
+            }
+            export.outputURL = outURL
+            export.outputFileType = .mov
+            export.timeRange = range
+            export.exportAsynchronously { [weak self] in
+                guard let self else { return }
+                self.saveToLibrary(export.status == .completed ? outURL : url)
+            }
+        }
     }
 }
 
@@ -152,8 +199,11 @@ extension CameraService: AVCaptureFileOutputRecordingDelegate {
             return
         }
 
-        // Save to photo library
-        UISaveVideoAtPathToSavedPhotosAlbum(outputFileURL.path, nil, nil, nil)
+        if trimOnFinish {
+            trimClapEndsAndSave(outputFileURL)   // strip the stop-clap moment off the tail
+        } else {
+            saveToLibrary(outputFileURL)
+        }
     }
 }
 

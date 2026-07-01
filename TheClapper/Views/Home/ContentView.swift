@@ -20,7 +20,7 @@ struct ContentView: View {
 
             // Camera tab
             NavigationStack {
-                CameraView(viewModel: viewModel)
+                CameraView(viewModel: viewModel, selectedTab: $selectedTab)
             }
             .tabItem {
                 Image(systemName: "video.fill")

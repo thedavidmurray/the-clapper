@@ -26,7 +26,7 @@ final class ActionDispatcher: ObservableObject {
 
         switch mapping.action {
         case .startStopRecording:
-            cameraService.toggleRecording()
+            cameraService.toggleRecording(gestureTriggered: true)
         case .takePhoto:
             cameraService.capturePhoto()
         case .toggleFlashlight:

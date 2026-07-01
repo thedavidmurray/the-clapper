@@ -3,6 +3,7 @@ import SwiftUI
 /// Full-screen camera view with gesture overlay.
 struct CameraView: View {
     @ObservedObject var viewModel: ClapperViewModel
+    @Binding var selectedTab: Int
 
     var body: some View {
         ZStack {
@@ -13,8 +14,8 @@ struct CameraView: View {
             // Top overlay - status
             VStack {
                 HStack {
-                    // Back button
-                    Button(action: { }, label: {
+                    // Back button -> return to the Monitor tab
+                    Button(action: { selectedTab = 0 }, label: {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 20, weight: .medium))
                             .foregroundStyle(.white)
