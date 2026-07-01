@@ -6,9 +6,8 @@ import Combine
 ///
 /// Pipeline (all pure DSP — no ML):
 ///   Mic -> AudioMonitorService tap
-///     -> amplitude onset detection (<10ms) + clap/snap classification off the
-///        same buffer (PercussiveClassifier)
-///     -> GestureRecognizerService (single/double/triple clap, or snap)
+///     -> amplitude onset detection (<10ms)
+///     -> GestureRecognizerService (single/double/triple clap by onset count)
 ///     -> ActionDispatcher (execute mapped action)
 @MainActor
 final class ClapperViewModel: ObservableObject {
@@ -62,8 +61,7 @@ final class ClapperViewModel: ObservableObject {
                 guard let self else { return }
                 self.transientCount += 1
                 self.haptics.transientDetected()
-                // Feed the onset + its DSP clap/snap label to the recognizer.
-                self.gestureRecognizer.onTransientDetected(at: event.timestamp, sound: event.sound)
+                self.gestureRecognizer.onTransientDetected(at: event.timestamp)
             }
             .store(in: &cancellables)
 
@@ -174,9 +172,8 @@ final class ClapperViewModel: ObservableObject {
         // Acquire the mic right before the engine starts.
         AudioSessionService.activate()
 
-        // The monitor installs its own tap that runs onset detection AND the DSP
-        // clap/snap classifier off each buffer, then emits transient events.
-        // No second tap / SoundAnalysis needed.
+        // The monitor installs its own tap that runs onset detection off each
+        // buffer and emits transient events. No second tap needed.
         guard audioMonitor.startListening() != nil else {
             // Engine failed to start — release the session so the mic "in use"
             // indicator doesn't stay lit for a dead engine.

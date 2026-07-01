@@ -1,10 +1,13 @@
 import Foundation
 
+// v1 gestures are clap-count only. Snaps register as claps — reliably telling
+// them apart across rooms/mics/distances needs more signal work (a
+// self-calibrating DSP classifier lives in git history at build 12 as the
+// starting point for a future refinement).
 enum GestureType: String, CaseIterable, Codable, Identifiable {
     case singleClap = "single_clap"
     case doubleClap = "double_clap"
     case tripleClap = "triple_clap"
-    case snap = "snap"
 
     var id: String { rawValue }
 
@@ -13,7 +16,6 @@ enum GestureType: String, CaseIterable, Codable, Identifiable {
         case .singleClap: return "Single Clap"
         case .doubleClap: return "Double Clap"
         case .tripleClap: return "Triple Clap"
-        case .snap: return "Snap"
         }
     }
 
@@ -22,7 +24,6 @@ enum GestureType: String, CaseIterable, Codable, Identifiable {
         case .singleClap: return "hand.raised"
         case .doubleClap: return "hands.clap"
         case .tripleClap: return "hands.sparkles"
-        case .snap: return "hand.point.up.left"
         }
     }
 }

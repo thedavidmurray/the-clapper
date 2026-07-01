@@ -11,10 +11,11 @@ final class GestureRecognizerService: ObservableObject {
 
     let gestureRecognized = PassthroughSubject<DetectedGesture, Never>()
 
-    // Onset timestamps + their DSP clap/snap labels, kept in sync so a sequence
-    // resolves as clap-count (single/double/triple) or snap.
+    // Onset timestamps for the sequence in progress; resolves by count
+    // (single/double/triple clap). Snaps count as claps in v1 — distinguishing
+    // them reliably across rooms/mics needs more work (see build-12 classifier
+    // in git history for the starting point).
     private var onsetTimestamps: [Date] = []
-    private var onsetSounds: [PercussiveSound] = []
 
     private var pendingTimer: Timer?
 
@@ -24,8 +25,7 @@ final class GestureRecognizerService: ObservableObject {
     private let patternWaitTime: TimeInterval = 0.65
 
     /// Called by Stage 1 when a transient onset is detected (<10ms latency).
-    /// `sound` is the DSP clap/snap label for this onset's buffer.
-    func onTransientDetected(at timestamp: Date, sound: PercussiveSound) {
+    func onTransientDetected(at timestamp: Date) {
         // Check if this onset is part of an ongoing sequence
         if let lastOnset = onsetTimestamps.last {
             let interval = timestamp.timeIntervalSince(lastOnset)
@@ -33,14 +33,11 @@ final class GestureRecognizerService: ObservableObject {
                 // Previous sequence timed out -- resolve it now, start new
                 resolveSequence()
                 onsetTimestamps = [timestamp]
-                onsetSounds = [sound]
             } else {
                 onsetTimestamps.append(timestamp)
-                onsetSounds.append(sound)
             }
         } else {
             onsetTimestamps = [timestamp]
-            onsetSounds = [sound]
         }
 
         // Reset the wait timer for more onsets in the pattern
@@ -55,28 +52,16 @@ final class GestureRecognizerService: ObservableObject {
         pendingTimer = nil
 
         let count = onsetTimestamps.count
-        let sounds = onsetSounds
         let firstOnset = onsetTimestamps.first
         onsetTimestamps.removeAll()
-        onsetSounds.removeAll()
 
         guard count > 0 else { return }
 
-        // Snap is strictly a SINGLE-onset gesture: only a lone onset labeled
-        // snap resolves as snap. Multi-onset sequences always resolve by clap
-        // count, so a double/triple clap can never misread as snap even if one
-        // of its onsets got a snap label.
-        let isSnap = count == 1 && sounds.first == .snap
-
         let gestureType: GestureType
-        if isSnap {
-            gestureType = .snap
-        } else {
-            switch count {
-            case 1: gestureType = .singleClap
-            case 2: gestureType = .doubleClap
-            default: gestureType = .tripleClap
-            }
+        switch count {
+        case 1: gestureType = .singleClap
+        case 2: gestureType = .doubleClap
+        default: gestureType = .tripleClap
         }
 
         emitGesture(gestureType, confidence: 0.85, firstOnsetAt: firstOnset)
