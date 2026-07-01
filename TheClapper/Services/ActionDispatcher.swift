@@ -25,7 +25,11 @@ final class ActionDispatcher: ObservableObject {
 
         switch mapping.action {
         case .startStopRecording:
-            cameraService.toggleRecording(gestureTriggered: true)
+            // How long ago the gesture's FIRST clap happened — when this stops a
+            // recording, the trim cuts back past the entire gesture, not just the
+            // final clap.
+            let gestureSpan = gesture.firstOnsetAt.map { Date().timeIntervalSince($0) }
+            cameraService.toggleRecording(gestureTriggered: true, gestureSpan: gestureSpan)
         case .takePhoto:
             cameraService.capturePhoto()
         case .toggleFlashlight:

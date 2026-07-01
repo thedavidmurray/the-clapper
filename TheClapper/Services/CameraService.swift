@@ -21,6 +21,10 @@ final class CameraService: NSObject, ObservableObject {
     /// True when the current recording was started by a gesture → auto-trim the
     /// clap moments off the ends when it finishes.
     private var trimOnFinish = false
+    /// Seconds of tail to cut when the recording was STOPPED by a gesture —
+    /// measured from the gesture's first clap, so the entire stop gesture (both
+    /// claps) is trimmed out, not just the last one.
+    private var pendingStopTail: TimeInterval?
     /// True once inputs/outputs are configured (requires camera permission).
     private var isConfigured = false
     /// Serializes configure/start/stop/switch so fast tab switches can't race
@@ -104,10 +108,13 @@ final class CameraService: NSObject, ObservableObject {
         }
     }
 
-    /// `gestureTriggered` = started by a clap → auto-trim the clap moments off the
-    /// ends when it finishes. The manual record button passes false.
-    func toggleRecording(gestureTriggered: Bool = false) {
+    /// `gestureTriggered` = invoked by a clap. When starting, that arms head-trim;
+    /// when stopping, `gestureSpan` (time since the stop gesture's FIRST clap) sets
+    /// how much tail to cut so the whole gesture — both claps — leaves the video.
+    /// The manual record button passes neither.
+    func toggleRecording(gestureTriggered: Bool = false, gestureSpan: TimeInterval? = nil) {
         if isRecording {
+            pendingStopTail = gestureTriggered ? gestureSpan : nil
             stopRecording()
         } else {
             startRecording(gestureTriggered: gestureTriggered)
@@ -232,9 +239,9 @@ final class CameraService: NSObject, ObservableObject {
     // MARK: - Auto-trim (strip the clap moments that bracket a gesture recording)
 
     /// Trims the ends off a gesture-triggered clip. Recording *starts* ~0.65s after
-    /// the start-claps (so they're already gone), but *stops* ~0.65s after the
-    /// stop-claps — so the stop clap sits near the tail. Trim a small head + a
-    /// larger tail. Falls back to the raw clip if it's too short or export fails.
+    /// the start-claps (so they're already gone); the tail is computed from the
+    /// stop gesture's first clap so the whole gesture is removed. Falls back to
+    /// the raw clip if it's too short or export fails.
     private func trimClapEndsAndSave(_ url: URL, head: Double = 0.15, tail: Double = 0.9) {
         Task {
             let asset = AVURLAsset(url: url)
@@ -298,8 +305,17 @@ extension CameraService: AVCaptureFileOutputRecordingDelegate {
             return
         }
 
-        if trimOnFinish {
-            trimClapEndsAndSave(outputFileURL)   // strip the stop-clap moment off the tail
+        // Tail: cut back past the ENTIRE stop gesture (first clap → recording end,
+        // plus a small pad for the clap's attack and stop latency). Head: small
+        // safety cut when the recording was gesture-started.
+        let stopTail = pendingStopTail.map { $0 + 0.35 }
+        pendingStopTail = nil
+        if trimOnFinish || stopTail != nil {
+            trimClapEndsAndSave(
+                outputFileURL,
+                head: trimOnFinish ? 0.15 : 0,
+                tail: stopTail ?? 0.9
+            )
         } else {
             saveToLibrary(outputFileURL)
         }

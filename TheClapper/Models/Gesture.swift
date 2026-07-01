@@ -32,4 +32,8 @@ struct DetectedGesture: Identifiable {
     let type: GestureType
     let timestamp: Date
     let confidence: Float
+    /// When the FIRST onset of this gesture's sequence occurred. Lets consumers
+    /// trim media back past the whole gesture — e.g. cutting BOTH stop-claps out
+    /// of a recording, not just the last one.
+    var firstOnsetAt: Date?
 }

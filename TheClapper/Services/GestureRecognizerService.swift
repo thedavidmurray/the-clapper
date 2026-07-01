@@ -56,6 +56,7 @@ final class GestureRecognizerService: ObservableObject {
 
         let count = onsetTimestamps.count
         let sounds = onsetSounds
+        let firstOnset = onsetTimestamps.first
         onsetTimestamps.removeAll()
         onsetSounds.removeAll()
 
@@ -77,11 +78,11 @@ final class GestureRecognizerService: ObservableObject {
             }
         }
 
-        emitGesture(gestureType, confidence: 0.85)
+        emitGesture(gestureType, confidence: 0.85, firstOnsetAt: firstOnset)
     }
 
-    private func emitGesture(_ type: GestureType, confidence: Float) {
-        let gesture = DetectedGesture(type: type, timestamp: .now, confidence: confidence)
+    private func emitGesture(_ type: GestureType, confidence: Float, firstOnsetAt: Date?) {
+        let gesture = DetectedGesture(type: type, timestamp: .now, confidence: confidence, firstOnsetAt: firstOnsetAt)
 
         DispatchQueue.main.async {
             self.lastGesture = gesture

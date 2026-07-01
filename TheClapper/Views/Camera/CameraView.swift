@@ -58,6 +58,22 @@ struct CameraView: View {
                 .padding(.horizontal, Spacing.lg)
                 .padding(.top, Spacing.sm)
 
+                // Stopwatch — visible here too, not just on the Monitor tab
+                if viewModel.actionDispatcher.isTimerRunning {
+                    HStack(spacing: Spacing.sm) {
+                        Image(systemName: "timer")
+                            .foregroundStyle(Color.edgelessWarning)
+                        Text(formatDuration(viewModel.actionDispatcher.timerElapsed))
+                            .font(.edgelessBadge)
+                            .foregroundStyle(.white)
+                    }
+                    .padding(.horizontal, Spacing.base)
+                    .padding(.vertical, Spacing.sm)
+                    .background(.ultraThinMaterial)
+                    .clipShape(Capsule())
+                    .padding(.top, Spacing.sm)
+                }
+
                 Spacer()
 
                 // Bottom controls
