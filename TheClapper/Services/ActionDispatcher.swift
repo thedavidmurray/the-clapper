@@ -32,6 +32,8 @@ final class ActionDispatcher: ObservableObject {
             cameraService.toggleRecording(gestureTriggered: true, gestureSpan: gestureSpan)
         case .takePhoto:
             cameraService.capturePhoto()
+        case .flipCamera:
+            cameraService.switchCamera()
         case .toggleFlashlight:
             toggleFlashlight()
         case .startStopTimer:
