@@ -64,30 +64,43 @@ struct HomeView: View {
             .padding(.horizontal, Spacing.lg)
             .padding(.top, Spacing.lg)
 
-            // Classification label
-            if !viewModel.lastClassification.isEmpty {
-                Text(viewModel.lastClassification.replacingOccurrences(of: "_", with: " ").capitalized)
-                    .font(.edgelessSmall)
-                    .foregroundStyle(Color.edgelessTextTertiary)
-                    .padding(.top, Spacing.sm)
-            }
-
             Spacer()
 
-            // Listen button
-            Button(action: { viewModel.toggleListening() }, label: {
-                HStack(spacing: Spacing.md) {
-                    Image(systemName: viewModel.isListening ? "mic.fill" : "mic.slash.fill")
-                    Text(viewModel.isListening ? "Listening" : "Start Listening")
-                        .font(.edgelessBodyMedium)
-                }
-                .foregroundStyle(viewModel.isListening ? Color.edgelessBackground : Color.edgelessTextPrimary)
-                .frame(maxWidth: .infinity)
-                .frame(height: 52)
-                .background(viewModel.isListening ? Color.edgelessAccent : Color.edgelessSurfaceLight)
-                .clipShape(RoundedRectangle(cornerRadius: 14))
-            })
-            .padding(.horizontal, Spacing.lg)
+            // Listen button — or, when mic access was denied, a path to Settings
+            // instead of a dead button (Guideline 2.1).
+            if viewModel.micPermissionDenied {
+                Button(action: {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }, label: {
+                    HStack(spacing: Spacing.md) {
+                        Image(systemName: "mic.slash.fill")
+                        Text("Enable Microphone in Settings")
+                            .font(.edgelessBodyMedium)
+                    }
+                    .foregroundStyle(Color.edgelessTextPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(Color.edgelessSurfaceLight)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                })
+                .padding(.horizontal, Spacing.lg)
+            } else {
+                Button(action: { viewModel.toggleListening() }, label: {
+                    HStack(spacing: Spacing.md) {
+                        Image(systemName: viewModel.isListening ? "mic.fill" : "mic.slash.fill")
+                        Text(viewModel.isListening ? "Listening" : "Start Listening")
+                            .font(.edgelessBodyMedium)
+                    }
+                    .foregroundStyle(viewModel.isListening ? Color.edgelessBackground : Color.edgelessTextPrimary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(viewModel.isListening ? Color.edgelessAccent : Color.edgelessSurfaceLight)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                })
+                .padding(.horizontal, Spacing.lg)
+            }
 
             // Recording duration
             if viewModel.isRecording {
@@ -154,7 +167,8 @@ struct HomeView: View {
     private var statusText: String {
         if viewModel.isRecording { return "Recording" }
         if viewModel.isListening { return "Listening for gestures" }
-        return "Tap to start listening"
+        if viewModel.micPermissionDenied { return "Microphone access needed" }
+        return "Paused — tap below to resume"
     }
 
     private var statusColor: Color {

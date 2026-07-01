@@ -74,13 +74,15 @@ struct CameraView: View {
                             .font(.edgelessSmall)
                             .foregroundStyle(.white.opacity(0.7))
 
-                        // Temporary diagnostic readout: live mic level + onset count.
-                        // If level moves when you clap but onsets stay 0 -> threshold;
-                        // if level is flat -> mic/engine; if onsets rise but no gesture
-                        // fires -> recognizer/dispatch. Remove before App Store submit.
+                        #if DEBUG
+                        // Diagnostic readout (debug builds only): live mic level +
+                        // onset count. Level moves but onsets stay 0 -> threshold;
+                        // level flat -> mic/engine; onsets rise but nothing fires
+                        // -> recognizer/dispatch.
                         Text(String(format: "lvl %.2f · onsets %d", viewModel.currentAmplitude, viewModel.transientCount))
                             .font(.system(size: 9, weight: .regular, design: .monospaced))
                             .foregroundStyle(.white.opacity(0.5))
+                        #endif
                     }
                     .onTapGesture { viewModel.toggleListening() }
 
@@ -146,12 +148,54 @@ struct CameraView: View {
                     .allowsHitTesting(false)
                     .transition(.opacity)
             }
+
+            // Camera permission denied — explain and offer Settings instead of a
+            // silent black preview.
+            if viewModel.cameraService.cameraPermissionDenied {
+                VStack(spacing: Spacing.md) {
+                    Image(systemName: "video.slash.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.white.opacity(0.7))
+
+                    Text("Camera access needed")
+                        .font(.edgelessHeadline)
+                        .foregroundStyle(.white)
+
+                    Text("The Clapper records video when you clap. Allow camera access in Settings to use this screen.")
+                        .font(.edgelessCaption)
+                        .foregroundStyle(.white.opacity(0.7))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, Spacing.xl)
+
+                    Button("Open Settings") {
+                        if let url = URL(string: UIApplication.openSettingsURLString) {
+                            UIApplication.shared.open(url)
+                        }
+                    }
+                    .font(.edgelessBodyMedium)
+                    .foregroundStyle(Color.edgelessAccent)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black.opacity(0.85))
+                .ignoresSafeArea()
+            }
         }
         .onAppear {
             viewModel.cameraService.startSession()
         }
         .onDisappear {
             viewModel.cameraService.stopSession()
+        }
+        .alert(
+            "Couldn't Save",
+            isPresented: Binding(
+                get: { viewModel.cameraService.saveErrorMessage != nil },
+                set: { if !$0 { viewModel.cameraService.saveErrorMessage = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel.cameraService.saveErrorMessage ?? "")
         }
     }
 

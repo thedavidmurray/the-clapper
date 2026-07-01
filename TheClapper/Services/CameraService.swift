@@ -8,6 +8,10 @@ final class CameraService: NSObject, ObservableObject {
     @Published var recordingDuration: TimeInterval = 0
     @Published var isSessionRunning = false
     @Published var didCapturePhoto = false
+    @Published var cameraPermissionDenied = false
+    /// Set when a recording or Photos save fails, so the UI can tell the user
+    /// instead of silently losing their clip.
+    @Published var saveErrorMessage: String?
 
     let captureSession = AVCaptureSession()
 
@@ -17,13 +21,21 @@ final class CameraService: NSObject, ObservableObject {
     /// True when the current recording was started by a gesture → auto-trim the
     /// clap moments off the ends when it finishes.
     private var trimOnFinish = false
+    /// True once inputs/outputs are configured (requires camera permission).
+    private var isConfigured = false
+    /// Serializes configure/start/stop/switch so fast tab switches can't race
+    /// (async startRunning landing after a stopSession left the camera on).
+    private let sessionQueue = DispatchQueue(label: "com.edgeless.theclapper.camera-session")
 
     override init() {
         super.init()
-        setupSession()
+        sweepStaleTempFiles()
+        // Session setup is deferred to the first Camera-tab visit so the camera
+        // permission prompt appears in context, not at app launch.
     }
 
     private func setupSession() {
+        guard !isConfigured else { return }
         captureSession.beginConfiguration()
         captureSession.sessionPreset = .high
 
@@ -54,22 +66,42 @@ final class CameraService: NSObject, ObservableObject {
         }
 
         captureSession.commitConfiguration()
+        isConfigured = true
     }
 
+    /// Checks camera authorization (requesting it in context on first use), then
+    /// configures and starts the session on the serial session queue.
     func startSession() {
-        guard !captureSession.isRunning else { return }
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.captureSession.startRunning()
-            DispatchQueue.main.async {
-                self?.isSessionRunning = true
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            startConfiguredSession()
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
+                guard let self else { return }
+                DispatchQueue.main.async { self.cameraPermissionDenied = !granted }
+                if granted { self.startConfiguredSession() }
             }
+        default:
+            DispatchQueue.main.async { self.cameraPermissionDenied = true }
+        }
+    }
+
+    private func startConfiguredSession() {
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
+            self.setupSession()
+            guard self.isConfigured, !self.captureSession.isRunning else { return }
+            self.captureSession.startRunning()
+            DispatchQueue.main.async { self.isSessionRunning = true }
         }
     }
 
     func stopSession() {
-        guard captureSession.isRunning else { return }
-        captureSession.stopRunning()
-        DispatchQueue.main.async { self.isSessionRunning = false }
+        sessionQueue.async { [weak self] in
+            guard let self, self.captureSession.isRunning else { return }
+            self.captureSession.stopRunning()
+            DispatchQueue.main.async { self.isSessionRunning = false }
+        }
     }
 
     /// `gestureTriggered` = started by a clap → auto-trim the clap moments off the
@@ -84,6 +116,13 @@ final class CameraService: NSObject, ObservableObject {
 
     func startRecording(gestureTriggered: Bool = false) {
         guard !isRecording else { return }
+        // Never start recording without a running session and an active video
+        // connection — AVCaptureMovieFileOutput.startRecording raises an ObjC
+        // NSInvalidArgumentException otherwise (reachable by a clap mapped to
+        // record while the user is on the Monitor tab, or with camera denied).
+        guard captureSession.isRunning,
+              let connection = movieOutput.connection(with: .video),
+              connection.isActive else { return }
         trimOnFinish = gestureTriggered
 
         let outputURL = FileManager.default.temporaryDirectory
@@ -119,36 +158,78 @@ final class CameraService: NSObject, ObservableObject {
     }
 
     func switchCamera() {
-        // Read the current VIDEO input + its position BEFORE removing anything.
-        // (Old bug: position was read from inputs.first AFTER removal — that was the
-        // audio input, position .unspecified -> it never actually flipped.)
-        guard let currentVideoInput = captureSession.inputs
-            .compactMap({ $0 as? AVCaptureDeviceInput })
-            .first(where: { $0.device.hasMediaType(.video) }) else { return }
+        guard !isRecording else { return }  // flipping mid-record kills the clip
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
+            // Read the current VIDEO input + its position BEFORE removing anything.
+            // (Old bug: position was read from inputs.first AFTER removal — that was
+            // the audio input, position .unspecified -> it never actually flipped.)
+            guard let currentVideoInput = self.captureSession.inputs
+                .compactMap({ $0 as? AVCaptureDeviceInput })
+                .first(where: { $0.device.hasMediaType(.video) }) else { return }
 
-        let newPosition: AVCaptureDevice.Position =
-            currentVideoInput.device.position == .front ? .back : .front
+            let newPosition: AVCaptureDevice.Position =
+                currentVideoInput.device.position == .front ? .back : .front
 
-        guard let newDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: newPosition),
-              let newInput = try? AVCaptureDeviceInput(device: newDevice) else { return }
+            guard let newDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: newPosition),
+                  let newInput = try? AVCaptureDeviceInput(device: newDevice) else { return }
 
-        captureSession.beginConfiguration()
-        captureSession.removeInput(currentVideoInput)
-        if captureSession.canAddInput(newInput) {
-            captureSession.addInput(newInput)
-        } else {
-            captureSession.addInput(currentVideoInput) // revert if the new device can't be added
+            self.captureSession.beginConfiguration()
+            self.captureSession.removeInput(currentVideoInput)
+            if self.captureSession.canAddInput(newInput) {
+                self.captureSession.addInput(newInput)
+            } else {
+                self.captureSession.addInput(currentVideoInput) // revert if the new device can't be added
+            }
+            self.captureSession.commitConfiguration()
         }
-        captureSession.commitConfiguration()
     }
 
-    // MARK: - Auto-trim (strip the clap moments that bracket a gesture recording)
+    // MARK: - Saving (with completion so failures aren't silently lost)
 
     private func saveToLibrary(_ url: URL) {
         DispatchQueue.main.async {
-            UISaveVideoAtPathToSavedPhotosAlbum(url.path, nil, nil, nil)
+            UISaveVideoAtPathToSavedPhotosAlbum(
+                url.path,
+                self,
+                #selector(self.video(_:didFinishSavingWithError:contextInfo:)),
+                nil
+            )
         }
     }
+
+    @objc private func video(_ videoPath: String, didFinishSavingWithError error: Error?, contextInfo: UnsafeMutableRawPointer?) {
+        if let error {
+            print("CameraService: Photos video save failed: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.saveErrorMessage = "Couldn't save the video to Photos. Check Photos access in Settings."
+            }
+        } else {
+            // Saved to Photos — the temp copy is no longer needed.
+            try? FileManager.default.removeItem(atPath: videoPath)
+        }
+    }
+
+    @objc private func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeMutableRawPointer?) {
+        if let error {
+            print("CameraService: Photos image save failed: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.saveErrorMessage = "Couldn't save the photo to Photos. Check Photos access in Settings."
+            }
+        }
+    }
+
+    /// Removes leftover clapper_*.mov temp files from previous runs so the temp
+    /// directory doesn't grow with every gesture recording.
+    private func sweepStaleTempFiles() {
+        let fm = FileManager.default
+        let files = (try? fm.contentsOfDirectory(at: fm.temporaryDirectory, includingPropertiesForKeys: nil)) ?? []
+        for file in files where file.lastPathComponent.hasPrefix("clapper_") && file.pathExtension == "mov" {
+            try? fm.removeItem(at: file)
+        }
+    }
+
+    // MARK: - Auto-trim (strip the clap moments that bracket a gesture recording)
 
     /// Trims the ends off a gesture-triggered clip. Recording *starts* ~0.65s after
     /// the start-claps (so they're already gone), but *stops* ~0.65s after the
@@ -177,7 +258,12 @@ final class CameraService: NSObject, ObservableObject {
             export.timeRange = range
             export.exportAsynchronously { [weak self] in
                 guard let self else { return }
-                self.saveToLibrary(export.status == .completed ? outURL : url)
+                if export.status == .completed {
+                    try? FileManager.default.removeItem(at: url)  // raw original superseded
+                    self.saveToLibrary(outURL)
+                } else {
+                    self.saveToLibrary(url)  // trim failed — keep the raw clip
+                }
             }
         }
     }
@@ -191,11 +277,24 @@ extension CameraService: AVCaptureFileOutputRecordingDelegate {
         error: Error?
     ) {
         DispatchQueue.main.async {
+            // Invalidate unconditionally: recordings that end abnormally
+            // (error, backgrounding, disk full) must not leave the repeating
+            // timer running with a climbing duration.
+            self.durationTimer?.invalidate()
+            self.durationTimer = nil
             self.isRecording = false
         }
 
-        if let error = error {
-            print("CameraService: Recording error: \(error.localizedDescription)")
+        // Disk-full / interruption stops often return an error but a fully
+        // playable file (AVErrorRecordingSuccessfullyFinishedKey) — keep those.
+        let finishedOK = error == nil ||
+            ((error! as NSError).userInfo[AVErrorRecordingSuccessfullyFinishedKey] as? Bool ?? false)
+        guard finishedOK else {
+            print("CameraService: Recording error: \(error!.localizedDescription)")
+            DispatchQueue.main.async {
+                self.saveErrorMessage = "The recording failed and couldn't be saved."
+            }
+            try? FileManager.default.removeItem(at: outputFileURL)
             return
         }
 
@@ -217,9 +316,15 @@ extension CameraService: AVCapturePhotoCaptureDelegate {
         guard let data = photo.fileDataRepresentation(),
               let image = UIImage(data: data) else { return }
 
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-
         DispatchQueue.main.async {
+            // UIKit save call belongs on the main thread (the delegate fires on a
+            // background queue); completion selector surfaces denied/failed saves.
+            UIImageWriteToSavedPhotosAlbum(
+                image,
+                self,
+                #selector(self.image(_:didFinishSavingWithError:contextInfo:)),
+                nil
+            )
             self.didCapturePhoto = true
             // Reset flash after 0.5s
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

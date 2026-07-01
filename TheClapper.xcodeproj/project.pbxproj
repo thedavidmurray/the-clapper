@@ -21,7 +21,6 @@
 		A10012 /* GestureAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10012; };
 		A10013 /* AudioLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10013; };
 		A10014 /* AudioMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10014; };
-		A10015 /* SoundClassifierService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10015; };
 		A10016 /* GestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10016; };
 		A10017 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10017; };
 		A10018 /* ActionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10018; };
@@ -49,7 +48,6 @@
 		B10012 /* GestureAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureAction.swift; sourceTree = "<group>"; };
 		B10013 /* AudioLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLevel.swift; sourceTree = "<group>"; };
 		B10014 /* AudioMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMonitorService.swift; sourceTree = "<group>"; };
-		B10015 /* SoundClassifierService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundClassifierService.swift; sourceTree = "<group>"; };
 		B10016 /* GestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerService.swift; sourceTree = "<group>"; };
 		B10017 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
 		B10018 /* ActionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDispatcher.swift; sourceTree = "<group>"; };
@@ -120,7 +118,6 @@
 			isa = PBXGroup;
 			children = (
 				B10014 /* AudioMonitorService.swift */,
-				B10015 /* SoundClassifierService.swift */,
 				B10016 /* GestureRecognizerService.swift */,
 				B10017 /* CameraService.swift */,
 				B10018 /* ActionDispatcher.swift */,
@@ -297,7 +294,6 @@
 				A10012 /* GestureAction.swift in Sources */,
 				A10013 /* AudioLevel.swift in Sources */,
 				A10014 /* AudioMonitorService.swift in Sources */,
-				A10015 /* SoundClassifierService.swift in Sources */,
 				A10016 /* GestureRecognizerService.swift in Sources */,
 				A10017 /* CameraService.swift in Sources */,
 				A10018 /* ActionDispatcher.swift in Sources */,
@@ -428,7 +424,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = 9BKHLSZVGF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TheClapper/Resources/Info.plist;
@@ -459,7 +455,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = 9BKHLSZVGF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TheClapper/Resources/Info.plist;

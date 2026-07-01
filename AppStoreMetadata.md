@@ -88,6 +88,6 @@ Initial release. Clap detection, photo capture, video recording, stopwatch timer
 5. Recording active - camera view with red recording indicator
 
 ## App Review Notes
-This app requires microphone access for audio gesture detection and camera access for video recording. The app uses Apple's built-in SoundAnalysis framework (SNClassifySoundRequest with .version1 classifier) for on-device ML classification. No custom ML models are included. No data is transmitted off-device.
+This app requires microphone access for audio gesture detection and camera access for video recording. Detection is pure on-device signal processing (amplitude onset detection plus a small DSP clap/snap classifier built on Apple's Accelerate framework — zero-crossing rate and spectral energy). No machine-learning models are used or included, no audio is recorded or stored, and no data is transmitted off-device.
 
-To test: Grant microphone permission, tap "Start Listening", then clap twice. The app will detect the double clap gesture. Navigate to the Camera tab to test gesture-triggered recording.
+To test: Grant microphone permission — the app starts listening automatically. Clap twice to trigger the double-clap gesture (default: start/stop recording — visible on the Camera tab). Clap once or three times for the other gestures, or snap your fingers for the snap gesture. Gesture-to-action mappings are configurable in Settings. If microphone or camera access is denied, the app shows an explanation with a link to Settings.

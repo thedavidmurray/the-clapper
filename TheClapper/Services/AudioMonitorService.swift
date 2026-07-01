@@ -65,7 +65,11 @@ final class AudioMonitorService: ObservableObject {
             engine.prepare()
             try engine.start()
             audioEngine = engine
-            DispatchQueue.main.async { self.isListening = true }
+            // Set synchronously (callers are main-actor): the guard above must see
+            // the new state immediately, or back-to-back auto-start triggers
+            // (.task + scenePhase .active) both pass and leak a second live
+            // engine with the mic held.
+            isListening = true
             return engine
         } catch {
             print("AudioMonitor: Failed to start: \(error)")
@@ -83,12 +87,13 @@ final class AudioMonitorService: ObservableObject {
         audioEngine?.stop()
         audioEngine = nil
         smoothedRMS = 0
-        DispatchQueue.main.async {
-            self.isListening = false
-            self.currentRMS = 0
-            self.currentPeak = 0
-            self.waveformSamples = Array(repeating: 0, count: 64)
-        }
+        // Synchronous for the same reason as startListening: a stop immediately
+        // followed by a start (e.g. route-change restart) must see isListening
+        // false, not the stale async-mirrored value.
+        isListening = false
+        currentRMS = 0
+        currentPeak = 0
+        waveformSamples = Array(repeating: 0, count: 64)
     }
 
     /// Returns the audio engine's input format for SoundAnalysis setup

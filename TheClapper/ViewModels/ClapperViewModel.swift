@@ -19,8 +19,10 @@ final class ClapperViewModel: ObservableObject {
     @Published var waveformSamples: [Float] = Array(repeating: 0, count: 64)
     @Published var lastGesture: DetectedGesture?
     @Published var recentGestures: [DetectedGesture] = []
-    @Published var lastClassification: String = ""
     @Published var hasMicPermission = false
+    /// True once the user has explicitly denied the mic — the UI must offer a
+    /// path to Settings instead of a dead Start button (Guideline 2.1).
+    @Published var micPermissionDenied = false
     @Published var recordingDuration: TimeInterval = 0
     @Published var transientCount: Int = 0
 
@@ -65,6 +67,50 @@ final class ClapperViewModel: ObservableObject {
             }
             .store(in: &cancellables)
 
+        // Audio-session interruptions (phone call, Siri, alarm) stop the engine
+        // out from under us. Tear down cleanly so the UI never shows a dead
+        // "Listening", and resume when the system says we can.
+        NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] note in
+                guard let self,
+                      let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+                      let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
+                switch type {
+                case .began:
+                    if self.isListening { self.stopListening() }
+                case .ended:
+                    let optionsRaw = note.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0
+                    if AVAudioSession.InterruptionOptions(rawValue: optionsRaw).contains(.shouldResume) {
+                        self.startListening()
+                    }
+                @unknown default:
+                    break
+                }
+            }
+            .store(in: &cancellables)
+
+        // Route changes (headphones/AirPods in or out) and engine configuration
+        // changes invalidate the running engine — restart it cleanly.
+        NotificationCenter.default.publisher(for: AVAudioSession.routeChangeNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] note in
+                guard let self, self.isListening,
+                      let raw = note.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+                      let reason = AVAudioSession.RouteChangeReason(rawValue: raw),
+                      reason == .oldDeviceUnavailable || reason == .newDeviceAvailable else { return }
+                self.restartListening()
+            }
+            .store(in: &cancellables)
+
+        NotificationCenter.default.publisher(for: .AVAudioEngineConfigurationChange)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self, self.isListening else { return }
+                self.restartListening()
+            }
+            .store(in: &cancellables)
+
         // Gesture recognized -> Action dispatcher
         gestureRecognizer.gestureRecognized
             .receive(on: DispatchQueue.main)
@@ -99,12 +145,16 @@ final class ClapperViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .assign(to: &$recordingDuration)
 
-        // Re-publish mapping changes from the nested ActionDispatcher so views
-        // observing the view model (SettingsView) actually refresh when the user
-        // picks a new action. Without this the model updated but the UI showed the
-        // old value — i.e. "the dropdown won't change". Only $mappings is forwarded
-        // (not the dispatcher's timer ticks), so it stays cheap.
-        actionDispatcher.$mappings
+        // Re-publish nested-service changes so views observing only the view model
+        // actually refresh: SettingsView reads dispatcher mappings, HomeView reads
+        // the stopwatch, CameraView reads didCapturePhoto / permission / save-error
+        // state. Without these forwards the child models update but the UI doesn't.
+        actionDispatcher.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in self?.objectWillChange.send() }
+            .store(in: &cancellables)
+
+        cameraService.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
@@ -115,6 +165,7 @@ final class ClapperViewModel: ObservableObject {
         // startListening() and deactivated in stopListening(), so the mic is
         // never held while we're not actively listening.
         hasMicPermission = await AudioSessionService.requestMicrophonePermission()
+        micPermissionDenied = !hasMicPermission
     }
 
     func startListening() {
@@ -126,8 +177,18 @@ final class ClapperViewModel: ObservableObject {
         // The monitor installs its own tap that runs onset detection AND the DSP
         // clap/snap classifier off each buffer, then emits transient events.
         // No second tap / SoundAnalysis needed.
-        guard audioMonitor.startListening() != nil else { return }
+        guard audioMonitor.startListening() != nil else {
+            // Engine failed to start — release the session so the mic "in use"
+            // indicator doesn't stay lit for a dead engine.
+            AudioSessionService.deactivate()
+            return
+        }
         transientCount = 0
+    }
+
+    private func restartListening() {
+        stopListening()
+        startListening()
     }
 
     func stopListening() {
@@ -136,7 +197,6 @@ final class ClapperViewModel: ObservableObject {
         AudioSessionService.deactivate()
         currentAmplitude = 0
         waveformSamples = Array(repeating: 0, count: 64)
-        lastClassification = ""
     }
 
     /// Called when the app enters the background. By default we stop listening

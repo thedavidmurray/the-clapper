@@ -10,7 +10,6 @@ final class ActionDispatcher: ObservableObject {
     @Published var timerElapsed: TimeInterval = 0
 
     private let cameraService: CameraService
-    private let hapticService = HapticService()
     private var timer: Timer?
 
     init(cameraService: CameraService) {
@@ -21,8 +20,8 @@ final class ActionDispatcher: ObservableObject {
     func dispatch(gesture: DetectedGesture) {
         guard let mapping = mappings.first(where: { $0.gesture == gesture.type }),
               mapping.action != .none else { return }
-
-        hapticService.gestureConfirmed()
+        // Haptic on recognition fires once in ClapperViewModel's sink — firing a
+        // second one here made every mapped gesture buzz twice.
 
         switch mapping.action {
         case .startStopRecording:
