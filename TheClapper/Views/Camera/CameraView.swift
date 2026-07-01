@@ -72,6 +72,14 @@ struct CameraView: View {
                         Text(viewModel.isListening ? "Listening" : "Paused")
                             .font(.edgelessSmall)
                             .foregroundStyle(.white.opacity(0.7))
+
+                        // Temporary diagnostic readout: live mic level + onset count.
+                        // If level moves when you clap but onsets stay 0 -> threshold;
+                        // if level is flat -> mic/engine; if onsets rise but no gesture
+                        // fires -> recognizer/dispatch. Remove before App Store submit.
+                        Text(String(format: "lvl %.2f · onsets %d", viewModel.currentAmplitude, viewModel.transientCount))
+                            .font(.system(size: 9, weight: .regular, design: .monospaced))
+                            .foregroundStyle(.white.opacity(0.5))
                     }
                     .onTapGesture { viewModel.toggleListening() }
 

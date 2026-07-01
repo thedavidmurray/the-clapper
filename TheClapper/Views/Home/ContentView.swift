@@ -41,12 +41,16 @@ struct ContentView: View {
         .tint(Color.edgelessAccent)
         .task {
             await viewModel.requestPermissions()
+            viewModel.startListening()   // auto-listen while the app is open
         }
-        .onChange(of: scenePhase) { newPhase in
-            // Release the mic when leaving the foreground unless the user opted
-            // into Background Listening. (single-arg onChange = works iOS 14+)
-            if newPhase == .background {
-                viewModel.handleEnteredBackground()
+        .onChange(of: scenePhase) { _, newPhase in
+            switch newPhase {
+            case .active:
+                viewModel.startListening()          // resume on return to foreground
+            case .background:
+                viewModel.handleEnteredBackground()  // release mic unless Background Listening is on
+            default:
+                break
             }
         }
     }

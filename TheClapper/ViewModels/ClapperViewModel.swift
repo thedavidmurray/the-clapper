@@ -209,9 +209,10 @@ final class ClapperViewModel: ObservableObject {
     private func applySensitivity() {
         // Map 0.0-1.0 sensitivity to threshold values (inverse relationship)
         // High sensitivity = low thresholds
-        audioMonitor.onsetThreshold = lerp(from: 0.25, to: 0.04, fraction: sensitivity)
-        audioMonitor.minimumAmplitude = lerp(from: 0.15, to: 0.03, fraction: sensitivity)
-        audioMonitor.debounceInterval = TimeInterval(lerp(from: 0.25, to: 0.10, fraction: sensitivity))
+        // More sensitive ranges so real claps reliably trigger onsets on-device.
+        audioMonitor.onsetThreshold = lerp(from: 0.15, to: 0.02, fraction: sensitivity)
+        audioMonitor.minimumAmplitude = lerp(from: 0.08, to: 0.012, fraction: sensitivity)
+        audioMonitor.debounceInterval = TimeInterval(lerp(from: 0.22, to: 0.09, fraction: sensitivity))
         saveSensitivity()
     }
 
