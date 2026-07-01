@@ -1,0 +1,6 @@
+scene,title,timing,description,required
+01,app_launch,0:15,"Tap app icon on home screen and launch","app icon tap + launch visible"
+02,permissions,0:30,"Show camera/mic permission prompts and granting","permissions visible, user grants"
+03,clap_detection,0:45,"Perform clap gesture; show GUI response","core feature demonstration"
+04,remote_control,0:30,"Use remote control in-app","remote functionality"
+05,settings,0:20,"Open any settings/config screens","optional but good"

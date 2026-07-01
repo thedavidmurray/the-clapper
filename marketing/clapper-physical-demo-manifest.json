@@ -1,0 +1,23 @@
+{
+  "created_at": "2026-06-13T00:19:24",
+  "updated_at": "2026-06-13T00:25:00",
+  "task": "Clapper demo video episode plan",
+  "device": {
+    "name": "Wavy Javy",
+    "model": "iPhone 14 Pro",
+    "identifier": "72E8237A-7DC8-5B68-91BF-AB49E0A5F930",
+    "connection": "verified"
+  },
+  "files": [
+    "/Users/djm/claude-projects/products/the-clapper/marketing/clapper-physical-demo-2026-06-13-capture-sheet.md",
+    "/Users/djm/claude-projects/products/the-clapper/marketing/clapper-physical-demo-plan.md",
+    "/Users/djm/claude-projects/products/the-clapper/marketing/clapper-physical-demo-episode.md",
+    "/Users/djm/claude-projects/products/the-clapper/marketing/capture_physical_demo.sh"
+  ],
+  "next": [
+    "record on real device",
+    "upload",
+    "app store connect update"
+  ],
+  "blocker": "Physical-device MOV capture requires manual recording because Apple requires personal human demonstration of the hardware and sample video."
+}

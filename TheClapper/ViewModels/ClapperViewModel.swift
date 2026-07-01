@@ -2,14 +2,13 @@ import SwiftUI
 import AVFoundation
 import Combine
 
-/// Main view model orchestrating the two-stage audio detection pipeline.
+/// Main view model orchestrating the audio detection pipeline.
 ///
-/// Pipeline:
-///   Mic -> AVAudioEngine tap
-///     -> Stage 1: AudioMonitorService (amplitude onset, <10ms)
-///        -> if transient: feed to Stage 2
-///     -> Stage 2: SoundClassifierService (ML classification, ~500ms)
-///     -> GestureRecognizerService (pattern detection)
+/// Pipeline (all pure DSP — no ML):
+///   Mic -> AudioMonitorService tap
+///     -> amplitude onset detection (<10ms) + clap/snap classification off the
+///        same buffer (PercussiveClassifier)
+///     -> GestureRecognizerService (single/double/triple clap, or snap)
 ///     -> ActionDispatcher (execute mapped action)
 @MainActor
 final class ClapperViewModel: ObservableObject {
@@ -39,17 +38,12 @@ final class ClapperViewModel: ObservableObject {
 
     // Services
     let audioMonitor = AudioMonitorService()
-    let soundClassifier = SoundClassifierService()
     let gestureRecognizer = GestureRecognizerService()
     let cameraService = CameraService()
     lazy var actionDispatcher = ActionDispatcher(cameraService: cameraService)
 
     private var cancellables = Set<AnyCancellable>()
     private let haptics = HapticService()
-
-    // Transient gating: only feed SoundAnalysis when a transient is detected
-    // Uses atomic-style access since it's read from the audio thread
-    private let classifierGate = ClassifierGate()
 
     init() {
         loadSensitivity()
@@ -66,24 +60,8 @@ final class ClapperViewModel: ObservableObject {
                 guard let self else { return }
                 self.transientCount += 1
                 self.haptics.transientDetected()
-
-                // Gate: allow SoundAnalysis for next 1.5s after transient
-                self.classifierGate.open(for: 1.5)
-
-                // Feed onset to gesture recognizer (fast path)
-                self.gestureRecognizer.onTransientDetected(at: event.timestamp)
-            }
-            .store(in: &cancellables)
-
-        // Stage 2: SoundAnalysis classification -> gesture recognizer
-        soundClassifier.soundClassified
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] result in
-                self?.lastClassification = result.label
-                self?.gestureRecognizer.onSoundClassified(
-                    label: result.label,
-                    confidence: result.confidence
-                )
+                // Feed the onset + its DSP clap/snap label to the recognizer.
+                self.gestureRecognizer.onTransientDetected(at: event.timestamp, sound: event.sound)
             }
             .store(in: &cancellables)
 
@@ -145,42 +123,15 @@ final class ClapperViewModel: ObservableObject {
         // Acquire the mic right before the engine starts.
         AudioSessionService.activate()
 
-        guard let engine = audioMonitor.startListening(),
-              let format = audioMonitor.inputFormat else { return }
-
-        // Setup SoundAnalysis on the same engine
-        soundClassifier.setup(format: format)
-
-        // Install a second tap is not possible on the same node,
-        // so we add SoundAnalysis feeding inside the monitor's existing tap.
-        // Instead, we'll observe buffers via the engine's input node directly.
-        // The AudioMonitorService already has the tap, so we piggyback
-        // by subscribing to transient events and feeding the classifier
-        // from a separate tap -- but AVAudioEngine only allows ONE tap per node.
-        //
-        // Solution: Remove the monitor's tap and install our own unified tap.
-        engine.inputNode.removeTap(onBus: 0)
-
-        let inputFormat = engine.inputNode.inputFormat(forBus: 0)
-        engine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] buffer, time in
-            guard let self else { return }
-
-            // Stage 1: Fast amplitude analysis (always runs)
-            self.audioMonitor.processBufferExternal(buffer, time: time)
-
-            // Stage 2: Feed SoundAnalysis only when gated (transient detected recently)
-            if self.classifierGate.isOpen {
-                self.soundClassifier.analyze(buffer: buffer, at: time)
-            }
-        }
-
-        // Engine is already started by audioMonitor, we just replaced the tap
+        // The monitor installs its own tap that runs onset detection AND the DSP
+        // clap/snap classifier off each buffer, then emits transient events.
+        // No second tap / SoundAnalysis needed.
+        guard audioMonitor.startListening() != nil else { return }
         transientCount = 0
     }
 
     func stopListening() {
         audioMonitor.stopListening()
-        soundClassifier.reset()
         // Release the microphone so the orange "in use" indicator clears.
         AudioSessionService.deactivate()
         currentAmplitude = 0
@@ -229,19 +180,5 @@ final class ClapperViewModel: ObservableObject {
         if saved > 0 {
             sensitivity = saved
         }
-    }
-}
-
-/// Thread-safe gate that opens for a duration then closes.
-/// Read from the audio thread, written from main thread.
-final class ClassifierGate: @unchecked Sendable {
-    private var closeTime: TimeInterval = 0
-
-    var isOpen: Bool {
-        Date().timeIntervalSince1970 < closeTime
-    }
-
-    func open(for duration: TimeInterval) {
-        closeTime = Date().timeIntervalSince1970 + duration
     }
 }
