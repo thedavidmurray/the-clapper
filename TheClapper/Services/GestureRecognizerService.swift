@@ -62,10 +62,11 @@ final class GestureRecognizerService: ObservableObject {
 
         guard count > 0 else { return }
 
-        // Majority vote on the onset labels: a snap sequence -> snap gesture,
-        // otherwise count claps for single/double/triple.
-        let snapCount = sounds.filter { $0 == .snap }.count
-        let isSnap = snapCount * 2 > sounds.count
+        // Snap is strictly a SINGLE-onset gesture: only a lone onset labeled
+        // snap resolves as snap. Multi-onset sequences always resolve by clap
+        // count, so a double/triple clap can never misread as snap even if one
+        // of its onsets got a snap label.
+        let isSnap = count == 1 && sounds.first == .snap
 
         let gestureType: GestureType
         if isSnap {

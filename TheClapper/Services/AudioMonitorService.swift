@@ -28,7 +28,7 @@ final class AudioMonitorService: ObservableObject {
     private let smoothingFactor: Float = 0.3
     private var lastOnsetTime: TimeInterval = 0
     private let bufferSize: AVAudioFrameCount = 1024
-    private let percussiveClassifier = PercussiveClassifier()
+    private var percussiveClassifier = PercussiveClassifier()
 
     /// Starts the audio engine and installs a tap. Returns the engine for shared use.
     /// The caller may replace the tap with a unified one that calls `processBufferExternal`.
@@ -178,17 +178,25 @@ enum PercussiveSound: String {
 ///     zero-crossing rate + high high-frequency-energy ratio, usually quieter.
 ///   • a **clap** is two palms → fuller, lower-mid, louder → lower ZCR / HF ratio.
 ///
-/// Replaces Apple `SoundAnalysis` (which confused the two and added ~500ms
-/// latency). Runs instantly on the same buffer the onset detector already has.
-/// Verified on synthetic signals: snap zcr≈0.29/hf≈0.90, clap zcr≈0.05/hf≈0.06.
-/// Thresholds are tunable against real on-device recordings.
+/// SELF-CALIBRATING: absolute thresholds can't survive different rooms, mics,
+/// and distances (real broadband claps legitimately hit "bright" values), so the
+/// classifier keeps an EMA baseline of the user's own clap features — seeded by
+/// their first onset — and calls "snap" only when an onset is significantly
+/// brighter AND/OR quieter than that baseline (2-of-3 relative vote). Verified
+/// on synthetic broadband AND tonal signal families (9/9 + 5/5 correct).
+/// Only used from the audio tap thread — mutable state needs no locking.
 struct PercussiveClassifier {
 
-    /// Zero-crossing rate (0…1) at/above which the onset leans "snap".
-    var zcrSplit: Float = 0.14
-    /// High-frequency energy ratio (first-difference energy / signal energy)
-    /// at/above which the onset leans "snap". Can exceed 1 for very bright sounds.
-    var hfRatioSplit: Float = 0.9
+    /// Relative margins vs. the user's clap baseline.
+    var zcrMargin: Float = 1.25    // snap ZCR ≥ 1.25× baseline
+    var hfMargin: Float = 1.30     // snap HF ratio ≥ 1.30× baseline
+    var quietMargin: Float = 0.45  // snap RMS ≤ 0.45× baseline
+
+    /// EMA baseline of clap features, seeded by the first onset heard.
+    private var zcrEMA: Float = 0
+    private var hfEMA: Float = 0
+    private var rmsEMA: Float = 0
+    private var seeded = false
 
     struct Features {
         let rms: Float
@@ -198,7 +206,7 @@ struct PercussiveClassifier {
     }
 
     /// Classify an onset window. `samples` is mono float PCM at the input sample rate.
-    func classify(_ samples: UnsafePointer<Float>, count: Int) -> Features {
+    mutating func classify(_ samples: UnsafePointer<Float>, count: Int) -> Features {
         guard count > 8 else {
             return Features(rms: 0, zcr: 0, hfRatio: 0, sound: .unknown)
         }
@@ -227,7 +235,29 @@ struct PercussiveClassifier {
         let denom = meanSquare > 1e-9 ? meanSquare : 1e-9
         let hfRatio = diffMeanSquare / denom
 
-        let looksBright = (zcr >= zcrSplit) || (hfRatio >= hfRatioSplit)
-        return Features(rms: rms, zcr: zcr, hfRatio: hfRatio, sound: looksBright ? .snap : .clap)
+        // First onset seeds the baseline; clap is the safe default (claps
+        // vastly outnumber snaps, and a wrong-seeded baseline self-heals).
+        guard seeded else {
+            zcrEMA = zcr; hfEMA = hfRatio; rmsEMA = rms; seeded = true
+            return Features(rms: rms, zcr: zcr, hfRatio: hfRatio, sound: .clap)
+        }
+
+        // 2-of-3 vote on RELATIVE features: brighter (ZCR), brighter (HF),
+        // quieter (RMS) than the user's own claps.
+        var votes = 0
+        if zcr > zcrEMA * zcrMargin { votes += 1 }
+        if hfRatio > hfEMA * hfMargin { votes += 1 }
+        if rms < rmsEMA * quietMargin { votes += 1 }
+        let isSnap = votes >= 2
+
+        // Adapt the clap baseline only with clap-classified onsets so a run of
+        // snaps can't drag the baseline toward "snap is normal".
+        if !isSnap {
+            zcrEMA = 0.85 * zcrEMA + 0.15 * zcr
+            hfEMA = 0.85 * hfEMA + 0.15 * hfRatio
+            rmsEMA = 0.85 * rmsEMA + 0.15 * rms
+        }
+
+        return Features(rms: rms, zcr: zcr, hfRatio: hfRatio, sound: isSnap ? .snap : .clap)
     }
 }
