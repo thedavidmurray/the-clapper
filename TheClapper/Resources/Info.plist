@@ -8,10 +8,6 @@
 	<string>The Clapper uses the camera to record video triggered by your gestures.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>The Clapper saves recorded videos to your photo library.</string>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>audio</string>
-	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>

@@ -30,12 +30,10 @@ final class ClapperViewModel: ObservableObject {
         didSet { applySensitivity() }
     }
 
-    /// When OFF (default), the mic is released the moment the app leaves the
-    /// foreground. When ON, listening continues in the background (extra battery,
-    /// mic stays active). Surfaced as a Settings toggle with an explanation.
-    @Published var backgroundListeningEnabled: Bool = false {
-        didSet { UserDefaults.standard.set(backgroundListeningEnabled, forKey: "clapper_background_listening") }
-    }
+    // v1 has no background listening: App Review (Guideline 2.5.4) requires the
+    // background-audio entitlement to PLAY audible content, and detection only
+    // records. The mic is always released when the app leaves the foreground.
+    // (Feature can return in a future version with a review demo video.)
 
     // Services
     let audioMonitor = AudioMonitorService()
@@ -48,7 +46,6 @@ final class ClapperViewModel: ObservableObject {
 
     init() {
         loadSensitivity()
-        backgroundListeningEnabled = UserDefaults.standard.bool(forKey: "clapper_background_listening")
         applySensitivity()
         setupBindings()
     }
@@ -196,10 +193,10 @@ final class ClapperViewModel: ObservableObject {
         waveformSamples = Array(repeating: 0, count: 64)
     }
 
-    /// Called when the app enters the background. By default we stop listening
-    /// (releasing the mic); if Background Listening is enabled we keep going.
+    /// Called when the app enters the background: always stop listening and
+    /// release the mic (no background-audio entitlement in v1).
     func handleEnteredBackground() {
-        if !backgroundListeningEnabled && isListening {
+        if isListening {
             stopListening()
         }
     }
