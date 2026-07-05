@@ -30,7 +30,20 @@
 		A10022 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10022; };
 		A10023 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B10024; };
 		A10024 /* ObjCExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = B10026; };
+		A20001 /* GestureRecognizerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20001; };
+		A20002 /* GestureMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20002; };
+		A20003 /* ActionDispatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20003; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		F20005 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = H10001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F10001;
+			remoteInfo = TheClapper;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		C10001 /* TheClapper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheClapper.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -60,10 +73,21 @@
 		B10025 /* ObjCExceptionCatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCExceptionCatcher.h; sourceTree = "<group>"; };
 		B10026 /* ObjCExceptionCatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCExceptionCatcher.m; sourceTree = "<group>"; };
 		B10027 /* TheClapper-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TheClapper-Bridging-Header.h"; sourceTree = "<group>"; };
+		B20001 /* GestureRecognizerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerServiceTests.swift; sourceTree = "<group>"; };
+		B20002 /* GestureMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureMappingTests.swift; sourceTree = "<group>"; };
+		B20003 /* ActionDispatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDispatcherTests.swift; sourceTree = "<group>"; };
+		C20001 /* TheClapperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheClapperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D10001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D20001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -77,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				E10002 /* TheClapper */,
+				E20001 /* TheClapperTests */,
 				E10020 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -206,8 +231,19 @@
 			isa = PBXGroup;
 			children = (
 				C10001 /* TheClapper.app */,
+				C20001 /* TheClapperTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E20001 /* TheClapperTests */ = {
+			isa = PBXGroup;
+			children = (
+				B20001 /* GestureRecognizerServiceTests.swift */,
+				B20002 /* GestureMappingTests.swift */,
+				B20003 /* ActionDispatcherTests.swift */,
+			);
+			path = TheClapperTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -230,6 +266,23 @@
 			productReference = C10001 /* TheClapper.app */;
 			productType = "com.apple.product-type.application";
 		};
+		F20001 /* TheClapperTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = G20003 /* Build configuration list for PBXNativeTarget "TheClapperTests" */;
+			buildPhases = (
+				F20002 /* Sources */,
+				D20001 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F20004 /* PBXTargetDependency */,
+			);
+			name = TheClapperTests;
+			productName = TheClapperTests;
+			productReference = C20001 /* TheClapperTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -242,6 +295,10 @@
 				TargetAttributes = {
 					F10001 = {
 						CreatedOnToolsVersion = 16.0;
+					};
+					F20001 = {
+						CreatedOnToolsVersion = 16.0;
+						TestTargetID = F10001;
 					};
 				};
 			};
@@ -259,6 +316,7 @@
 			projectRoot = "";
 			targets = (
 				F10001 /* TheClapper */,
+				F20001 /* TheClapperTests */,
 			);
 		};
 /* End PBXProject section */
@@ -304,7 +362,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F20002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A20001 /* GestureRecognizerServiceTests.swift in Sources */,
+				A20002 /* GestureMappingTests.swift in Sources */,
+				A20003 /* ActionDispatcherTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F20004 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F10001 /* TheClapper */;
+			targetProxy = F20005 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		G10002 /* Debug */ = {
@@ -480,6 +556,44 @@
 			};
 			name = Release;
 		};
+		G20005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9BKHLSZVGF;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.edgeless.theclapper.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TheClapper.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TheClapper";
+			};
+			name = Debug;
+		};
+		G20006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9BKHLSZVGF;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.edgeless.theclapper.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TheClapper.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/TheClapper";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -497,6 +611,15 @@
 			buildConfigurations = (
 				G10005 /* Debug */,
 				G10006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		G20003 /* Build configuration list for PBXNativeTarget "TheClapperTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				G20005 /* Debug */,
+				G20006 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
