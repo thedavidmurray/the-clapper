@@ -1,0 +1,19 @@
+name: CI
+
+on:
+  push:
+    branches: [paid-update, master]
+  pull_request:
+    branches: [paid-update, master]
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app
+      - name: Build
+        run: xcodebuild -scheme TheClapper -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14' clean build
+      - name: Test
+        run: xcodebuild -scheme TheClapper -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 14' test
