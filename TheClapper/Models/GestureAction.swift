@@ -41,7 +41,6 @@ struct GestureActionMapping: Codable, Identifiable {
     static let defaults: [GestureActionMapping] = [
         GestureActionMapping(gesture: .singleClap, action: .flipCamera),
         GestureActionMapping(gesture: .doubleClap, action: .startStopRecording),
-        GestureActionMapping(gesture: .tripleClap, action: .takePhoto),
-        GestureActionMapping(gesture: .snap, action: .toggleFlashlight)
+        GestureActionMapping(gesture: .tripleClap, action: .takePhoto)
     ]
 }
