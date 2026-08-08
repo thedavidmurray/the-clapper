@@ -52,7 +52,7 @@ struct PaywallView: View {
             }) {
                 Text("Restore Purchase")
                     .font(.edgelessCaption)
-                    .foregroundColor(Color.edgelessTertiary)
+                    .foregroundColor(Color.edgelessTextTertiary)
             }
             .padding(.top, 8)
             

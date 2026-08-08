@@ -21,6 +21,7 @@
 		A10012 /* GestureAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10012; };
 		A10013 /* AudioLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10013; };
 		A10014 /* AudioMonitorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10014; };
+		A10015 /* StoreManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10015; };
 		A10016 /* GestureRecognizerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10016; };
 		A10017 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10017; };
 		A10018 /* ActionDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10018; };
@@ -30,6 +31,7 @@
 		A10022 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B10022; };
 		A10023 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = B10024; };
 		A10024 /* ObjCExceptionCatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = B10026; };
+		A10030 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10030; };
 		A20001 /* GestureRecognizerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20001; };
 		A20002 /* GestureMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20002; };
 		A20003 /* ActionDispatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20003; };
@@ -61,6 +63,7 @@
 		B10012 /* GestureAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureAction.swift; sourceTree = "<group>"; };
 		B10013 /* AudioLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioLevel.swift; sourceTree = "<group>"; };
 		B10014 /* AudioMonitorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioMonitorService.swift; sourceTree = "<group>"; };
+		B10015 /* StoreManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreManager.swift; sourceTree = "<group>"; };
 		B10016 /* GestureRecognizerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerService.swift; sourceTree = "<group>"; };
 		B10017 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
 		B10018 /* ActionDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDispatcher.swift; sourceTree = "<group>"; };
@@ -73,6 +76,8 @@
 		B10025 /* ObjCExceptionCatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjCExceptionCatcher.h; sourceTree = "<group>"; };
 		B10026 /* ObjCExceptionCatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjCExceptionCatcher.m; sourceTree = "<group>"; };
 		B10027 /* TheClapper-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TheClapper-Bridging-Header.h"; sourceTree = "<group>"; };
+		B10028 /* ClapperIAP.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClapperIAP.entitlements; sourceTree = "<group>"; };
+		B10030 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		B20001 /* GestureRecognizerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerServiceTests.swift; sourceTree = "<group>"; };
 		B20002 /* GestureMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureMappingTests.swift; sourceTree = "<group>"; };
 		B20003 /* ActionDispatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDispatcherTests.swift; sourceTree = "<group>"; };
@@ -117,6 +122,7 @@
 				E10012 /* Extensions */,
 				E10013 /* Resources */,
 				B10027 /* TheClapper-Bridging-Header.h */,
+				B10028 /* ClapperIAP.entitlements */,
 			);
 			path = TheClapper;
 			sourceTree = "<group>";
@@ -143,6 +149,7 @@
 			isa = PBXGroup;
 			children = (
 				B10014 /* AudioMonitorService.swift */,
+				B10015 /* StoreManager.swift */,
 				B10016 /* GestureRecognizerService.swift */,
 				B10017 /* CameraService.swift */,
 				B10018 /* ActionDispatcher.swift */,
@@ -169,6 +176,7 @@
 				E10009 /* Camera */,
 				E10010 /* Settings */,
 				E10011 /* Shared */,
+				B10030 /* PaywallView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -352,6 +360,7 @@
 				A10012 /* GestureAction.swift in Sources */,
 				A10013 /* AudioLevel.swift in Sources */,
 				A10014 /* AudioMonitorService.swift in Sources */,
+				A10015 /* StoreManager.swift in Sources */,
 				A10016 /* GestureRecognizerService.swift in Sources */,
 				A10017 /* CameraService.swift in Sources */,
 				A10018 /* ActionDispatcher.swift in Sources */,
@@ -359,6 +368,7 @@
 				A10020 /* AudioSessionService.swift in Sources */,
 				A10021 /* DesignSystem.swift in Sources */,
 				A10024 /* ObjCExceptionCatcher.m in Sources */,
+				A10030 /* PaywallView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,8 +509,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TheClapper/ClapperIAP.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 9BKHLSZVGF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TheClapper/Resources/Info.plist;
@@ -530,8 +541,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TheClapper/ClapperIAP.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 15;
 				DEVELOPMENT_TEAM = 9BKHLSZVGF;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = TheClapper/Resources/Info.plist;

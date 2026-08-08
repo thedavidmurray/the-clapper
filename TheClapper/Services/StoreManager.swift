@@ -44,10 +44,10 @@ class StoreManager: ObservableObject {
             switch result {
             case .success(let verification):
                 switch verification {
-                case .unverified(let signedType, let error):
+                case .unverified(_, let error):
                     purchaseState = .failed(error)
-                case .verified(let signedType):
-                    await updateTransaction(signedType)
+                case .verified(let transaction):
+                    await updateTransaction(transaction)
                 }
             case .userCancelled:
                 purchaseState = nil
@@ -69,16 +69,11 @@ class StoreManager: ObservableObject {
         }
     }
     
-    private func updateTransaction(_ signedTransaction: SignedTransaction) async {
-        switch signedTransaction {
-        case .verified(let transaction):
-            // Deliver the product to the user.
-            await updateCustomerProductStatus()
-            await transaction.finish()
-            purchaseState = .purchased
-        case .unverified(let signedType, let error):
-            purchaseState = .failed(error)
-        }
+    private func updateTransaction(_ transaction: Transaction) async {
+        // Deliver the product to the user.
+        await updateCustomerProductStatus()
+        await transaction.finish()
+        purchaseState = .purchased
     }
     
     private func updateCustomerProductStatus() async {
@@ -86,7 +81,7 @@ class StoreManager: ObservableObject {
             switch result {
             case .verified(let transaction):
                 // Check if the transaction is for one of our product IDs and is not revoked.
-                if productIDs.contains(transaction.productID) && !transaction.revocationDate {
+                if productIDs.contains(transaction.productID) && transaction.revocationDate == nil {
                     purchasedProductIDs.insert(transaction.productID)
                 }
             case .unverified(let error, _):
@@ -101,7 +96,7 @@ class StoreManager: ObservableObject {
                 switch verification {
                 case .verified(let transaction):
                     // Check if the transaction is for one of our product IDs and is not revoked.
-                    if productIDs.contains(transaction.productID) && !transaction.revocationDate {
+                    if productIDs.contains(transaction.productID) && transaction.revocationDate == nil {
                         await updateCustomerProductStatus()
                     }
                     await transaction.finish()
