@@ -48,7 +48,7 @@ struct ContentView: View {
             case .active:
                 viewModel.startListening()          // resume on return to foreground
             case .background:
-                viewModel.handleEnteredBackground()  // release mic unless Background Listening is on
+                viewModel.handleEnteredBackground()  // always release the mic in the background
             default:
                 break
             }

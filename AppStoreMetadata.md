@@ -18,24 +18,19 @@ com.edgeless.theclapper
 
 ## Description (4000 chars max)
 
-The Clapper turns sound into action. Clap to start recording. Snap to toggle your flashlight. Triple-clap to take a photo. Set up your shot, walk into frame, and clap to roll.
+The Clapper turns sound into action. Double-clap to start recording. Single-clap to flip the camera. Triple-clap to take a photo. Set up your shot, walk into frame, and clap to roll.
 
 Built for solo content creators, photographers, athletes, cooks, and anyone who needs hands-free phone control.
 
 HOW IT WORKS
 
-The Clapper uses a two-stage audio detection pipeline:
-- Stage 1: Ultra-fast transient detection catches the moment you clap (under 10ms)
-- Stage 2: Apple's on-device ML confirms it was actually a clap, not a door slam or cough
-
-This dual-layer approach means near-zero false positives with sub-second response time. All processing happens on-device. No cloud. No data leaves your phone.
+The Clapper uses pure on-device signal processing: ultra-fast transient detection catches the moment you clap (under 10ms), and adjustable sensitivity plus smart debouncing filter out door slams and background noise. All processing happens on-device. No cloud. No data leaves your phone.
 
 GESTURE VOCABULARY
 
-- Single Clap: Configurable action
+- Single Clap: Flip camera (default)
 - Double Clap: Start/stop video recording (default)
 - Triple Clap: Take a photo (default)
-- Finger Snap: Toggle flashlight (default)
 
 Every gesture maps to any action. Configure it your way in Settings.
 
@@ -88,6 +83,6 @@ Initial release. Clap detection, photo capture, video recording, stopwatch timer
 5. Recording active - camera view with red recording indicator
 
 ## App Review Notes
-This app requires microphone access for audio gesture detection and camera access for video recording. Detection is pure on-device signal processing (amplitude onset detection plus a small DSP clap/snap classifier built on Apple's Accelerate framework — zero-crossing rate and spectral energy). No machine-learning models are used or included, no audio is recorded or stored, and no data is transmitted off-device.
+This app requires microphone access for audio gesture detection and camera access for video recording. Detection is pure on-device signal processing (amplitude onset detection built on Apple's Accelerate framework — gestures are recognized by counting claps). No machine-learning models are used or included, no audio is recorded or stored, and no data is transmitted off-device.
 
-To test: Grant microphone permission — the app starts listening automatically. Clap twice to trigger the double-clap gesture (default: start/stop recording — visible on the Camera tab). Clap once or three times for the other gestures, or snap your fingers for the snap gesture. Gesture-to-action mappings are configurable in Settings. If microphone or camera access is denied, the app shows an explanation with a link to Settings.
+To test: Grant microphone permission — the app starts listening automatically. Clap twice to trigger the double-clap gesture (default: start/stop recording — visible on the Camera tab). Clap once to flip the camera, three times to take a photo. Gesture-to-action mappings are configurable in Settings. If microphone or camera access is denied, the app shows an explanation with a link to Settings.
