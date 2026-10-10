@@ -1,0 +1,150 @@
+{
+  "evidence_id": "ev_deb45a7fe7506c2cdb52688595723aad3cb170538aa2e8c569a3034ae78d00d4",
+  "subject": {
+    "name": "final-fixed-arm64.macho",
+    "digest": {
+      "sha256": "dbb7623c726173f3f4f7908ffb6ed171b9b0a57c2914d962da3d5f442db71ed8"
+    },
+    "format": "mach-o",
+    "architecture": "arm64",
+    "local_path": "/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/evidence/final-fixed-arm64.macho"
+  },
+  "provider": {
+    "id": "ghidra",
+    "name": "Ghidra",
+    "version": "12.1.4"
+  },
+  "operation": "analyze_function",
+  "parameters": {
+    "procedure": "0x100023e24"
+  },
+  "excerpt_notice": "Selected fields from REA output; not a canonical complete REA Evidence bundle.",
+  "raw_result": {
+    "procedure": {
+      "address": "0x100023e24",
+      "name": "$$function_signature_specialization_<Arg[1]_=_Dead>_of_TheClapper.AudioMonitorService.(processBuffer_in__D47E894B1545D8C46150613F0BDCCCB0)(_:___C.AVAudioPCMBuffer,time:___C.AVAudioTime)_->_()",
+      "classification": {
+        "external": false,
+        "thunk": false,
+        "thunk_target": null,
+        "provenance": "ghidra-function-manager"
+      },
+      "body": {
+        "available": true,
+        "provenance": "ghidra-function-body-address-set",
+        "ranges": [
+          {
+            "start": "0x100023e24",
+            "end": "0x1000243f3"
+          }
+        ],
+        "total_bytes": 1488,
+        "span_bytes": 1488,
+        "non_contiguous": false,
+        "contains_entry": true
+      },
+      "signature": "undefined $$function_signature_specialization_<Arg[1]_=_Dead>_of_TheClapper.AudioMonitorService.(processBuffer_in__D47E894B1545D8C46150613F0BDCCCB0)(_:___C.AVAudioPCMBuffer,time:___C.AVAudioTime)_->_()()",
+      "locals": [
+        {
+          "description": "undefined8 local_10 @ Stack[-0x10]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_100 @ Stack[-0x100]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_20 @ Stack[-0x20]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_30 @ Stack[-0x30]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_40 @ Stack[-0x40]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_50 @ Stack[-0x50]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_60 @ Stack[-0x60]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_70 @ Stack[-0x70]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_80 @ Stack[-0x80]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_88 @ Stack[-0x88]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_90 @ Stack[-0x90]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_a0 @ Stack[-0xa0]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_a8 @ Stack[-0xa8]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_b0 @ Stack[-0xb0]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_b8 @ Stack[-0xb8]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_c0 @ Stack[-0xc0]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_c8 @ Stack[-0xc8]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_d0 @ Stack[-0xd0]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_d8 @ Stack[-0xd8]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_e0 @ Stack[-0xe0]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_e8 @ Stack[-0xe8]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_f0 @ Stack[-0xf0]:8",
+          "provenance": "ghidra-function-database"
+        },
+        {
+          "description": "undefined8 local_f8 @ Stack[-0xf8]:8",
+          "provenance": "ghidra-function-database"
+        }
+      ]
+    },
+    "pseudocode": "\n/* WARNING: Function: _objc_retainAutoreleasedReturnValue replaced with injection:\n   _objc_retain_fixup */\n/* WARNING: Function: _objc_release_x20 replaced with injection: _objc_release_fixup */\n\nvoid __function_signature_specialization_<Arg[1]___Dead>_of_TheClapper_AudioMonitorService__processBuffer_in__D47E894B1545D8C46150613F0BDCCCB0_______C_AVAudioPCMBuffer_time____C_AVAudioTime___>___\n               (ID param_1)\n\n{\n  long lVar1;\n  void *aBlock;\n  code *pcVar2;\n  bool bVar3;\n  TransientEvent TVar4;\n  Date DVar5;\n  DispatchWorkItemFlags DVar6;\n  ID IVar7;\n  long *plVar8;\n  undefined *puVar9;\n  OS_dispatch_queue *pOVar10;\n  undefined *puVar11;\n  DispatchQoS DVar12;\n  long lVar13;\n  long unaff_x20;\n  float *pfVar14;\n  long lVar15;\n  long lVar16;\n  long lVar17;\n  DispatchWorkItemFlags qos;\n  long lVar18;\n  undefined *puVar19;\n  float fVar20;\n  double extraout_d0;\n  double extraout_d0_00;\n  double dVar21;\n  float fVar22;\n  undefined *local_100;\n  undefined *local_f8;\n  undefined *local_f0;\n  long local_e8;\n  long local_e0;\n  void *local_d8;\n  OS_dispatch_queue *local_d0;\n  long local_c8;\n  undefined *local_c0;\n  ID local_b8;\n  undefined *local_b0;\n  undefined8 local_a8;\n  code *local_a0;\n  undefined *puStack_98;\n  code *local_90;\n  undefined *local_88;\n  long local_80;\n  \n  local_80 = *(long *)PTR____stack_chk_guard_100048410;\n  TVar4 = TheClapper::AudioMonitorService::TransientEvent::typeMetadataAccessor();\n  lVar16 = (long)&local_100 -\n           (*(long *)(*(long *)(TVar4.unknown + -8) + 0x40) + 0xfU & 0xfffffffffffffff0);\n  DVar5 = Foundation::Date::typeMetadataAccessor();\n  lVar17 = *(long *)(DVar5.unknown + -8);\n  lVar13 = lVar16 - (*(long *)(lVar17 + 0x40) + 0xfU & 0xfffffffffffffff0);\n  local_c8 = lVar13;\n  DVar6 = Dispatch::DispatchWorkItemFlags::typeMetadataAccessor();\n  local_b8 = *(ID *)(DVar6.unknown + -8);\n  lVar13 = lVar13 - (*(long *)(local_b8 + 0x40) + 0xfU & 0xfffffffffffffff0);\n  local_c0 = (undefined *)Dispatch::DispatchQoS::typeMetadataAccessor();\n  lVar18 = *(long *)(local_c0 + -8);\n  qos.unknown = (undefined *)(lVar13 - (*(long *)(lVar18 + 0x40) + 0xfU & 0xfffffffffffffff0));\n  ___profc__Users_djm__hermes_kanban_boards_edgeless_workspaces_t_24628b96_source_TheClapper_Services_AudioMonitorService_swift__s10TheClapper19AudioMonitorServiceC13processBuffer33_D47E894B1545D8C46150613F0BDCCCB0LL_4timeySo16AVAudioPCMBufferC_So0P4TimeCtF\n       = ___profc__Users_djm__hermes_kanban_boards_edgeless_workspaces_t_24628b96_source_TheClapper_Services_AudioMonitorService_swift__s10TheClapper19AudioMonitorServiceC13processBuffer33_D47E894B1545D8C46150613F0BDCCCB0LL_4timeySo16AVAudioPCMBufferC_So0P4TimeCtF\n         + 1;\n  IVar7 = objc_stub::frameLength(param_1);\n  if ((int)IVar7 != 0) {\n    IVar7 = objc_stub::format(param_1);\n    objc_stub::sampleRate(IVar7);\n    if ((0.0 < extraout_d0) &&\n       (plVar8 = (long *)objc_stub::floatChannelData(param_1), plVar8 != (long *)0x0)) {\n      lVar15 = *plVar8;\n      local_f0 = DVar5.unknown;\n      local_e8 = lVar16;\n      local_e0 = lVar17;\n      IVar7 = objc_stub::frameLength(param_1);\n      puVar19 = &DAT_10004a728;\n      _swift_allocObject(&DAT_10004a728,0x14,7);\n      pfVar14 = (float *)(puVar19 + 0x10);\n      *pfVar14 = 0.0;\n      _vDSP_measqv(lVar15,1,pfVar14,IVar7 & 0xffffffff);\n      *pfVar14 = SQRT(*pfVar14);\n      puVar9 = &DAT_10004a728;\n      _swift_allocObject(&DAT_10004a728,0x14,7);\n      *(undefined4 *)(puVar9 + 0x10) = 0;\n      _vDSP_maxmgv(lVar15,1,puVar9 + 0x10,IVar7 & 0xffffffff);\n      IVar7 = objc_stub::frameLength(param_1);\n      lVar16 = lVar15;\n      __function_signature_specialization_<Arg[2]___Dead>_of_TheClapper_AudioMonitorService__downsampleForWaveform_in__D47E894B1545D8C46150613F0BDCCCB0_____Swift_UnsafePointer<Swift_Float>_frameCount__Swift_Int___>__Swift_Float_\n                (lVar15,IVar7 & 0xffffffff);\n      local_d8 = (void *)lVar16;\n      pOVar10 = __C::OS_dispatch_queue::typeMetadataAccessor();\n      local_d0 = (extension_Dispatch)::__C::OS_dispatch_queue::get_main\n                           ((OS_dispatch_queue *)pOVar10);\n      puVar11 = &DAT_10004a750;\n      _swift_allocObject(&DAT_10004a750,0x30,7);\n      *(long *)(puVar11 + 0x10) = unaff_x20;\n      *(undefined **)(puVar11 + 0x18) = puVar19;\n      *(undefined **)(puVar11 + 0x20) = puVar9;\n      *(void **)(puVar11 + 0x28) = local_d8;\n      local_90 = \n      __partial_apply_forwarder_for_closure__1__Swift_MainActor_____>____in_TheClapper_AudioMonitorService__processBuffer_in__D47E894B1545D8C46150613F0BDCCCB0_______C_AVAudioPCMBuffer_time____C_AVAudioTime___>___\n      ;\n      local_b0 = PTR___NSConcreteStackBlock_1000483f0;\n      local_a8 = 0x42000000;\n      local_a0 = \n      __reabstraction_thunk_helper_from__escaping__callee_guaranteed_____>____to__escaping__callee_unowned__convention_block______>___\n      ;\n      puStack_98 = &_block_descriptor_21;\n      local_88 = puVar11;\n      local_d8 = __Block_copy(&local_b0);\n      DVar12.unknown = local_88;\n      _swift_retain();\n      local_f8 = puVar19;\n      _swift_retain(puVar19);\n      local_100 = puVar9;\n      _swift_retain(puVar9);\n      _swift_release();\n      DVar12 = Dispatch::DispatchQoS::get_unspecified(DVar12);\n      local_b0 = PTR___swiftEmptyArrayStorage_100049298;\n      Dispatch::DispatchWorkItemFlags::_lazy_protocol_witness_table_accessor();\n      puVar19 = &__demangling_cache_variable_for_type_metadata_for__Dispatch_DispatchWorkItemFlags_;\n      ___swift_instantiateConcreteTypeFromMangledNameV2\n                (&__demangling_cache_variable_for_type_metadata_for__Dispatch_DispatchWorkItemFlags_\n                 ,&__mangled_name_ref_for_type_metadata_for__Dispatch_DispatchWorkItemFlags_);\n      puVar9 = puVar19;\n      Swift::Array<DispatchWorkItemFlags>::_lazy_protocol_witness_table_accessor();\n      Swift::SetAlgebra::_init(lVar13,&local_b0,puVar19,puVar9,DVar6.unknown,DVar12.unknown);\n      aBlock = local_d8;\n      (extension_Dispatch)::__C::OS_dispatch_queue::_async((DispatchQoS)0x0,qos);\n      __Block_release(aBlock);\n      (**(code **)(local_b8 + 8))(lVar13,DVar6.unknown);\n      (**(code **)(lVar18 + 8))(qos.unknown,local_c0);\n      IVar7 = objc_stub::format(param_1);\n      objc_stub::sampleRate(IVar7);\n      lVar16 = local_c8;\n      lVar13 = local_e0;\n      dVar21 = extraout_d0_00 * 0.002;\n      if (0x7fefffffffffffff < (ulong)ABS(dVar21)) {\n                    /* WARNING: Does not return */\n        pcVar2 = (code *)SoftwareBreakpoint(1,0x1000243e8);\n        (*pcVar2)();\n      }\n      if (dVar21 <= -9.223372036854778e+18) {\n                    /* WARNING: Does not return */\n        pcVar2 = (code *)SoftwareBreakpoint(1,0x1000243ec);\n        (*pcVar2)();\n      }\n      if (9.223372036854776e+18 <= dVar21) {\n                    /* WARNING: Does not return */\n        pcVar2 = (code *)SoftwareBreakpoint(1,0x1000243f0);\n        (*pcVar2)();\n      }\n      lVar17 = (long)dVar21;\n      if (lVar17 < 2) {\n        lVar17 = 1;\n      }\n      DVar5 = Foundation::Date::init();\n      dVar21 = Foundation::Date::get_timeIntervalSince1970(DVar5);\n      (**(code **)(lVar13 + 8))(lVar16,local_f0);\n      local_b8 = param_1;\n      IVar7 = objc_stub::frameLength(param_1);\n      lVar13 = _TtC10TheClapper19AudioMonitorService::smoothedRMS;\n      if ((int)IVar7 != 0) {\n        lVar16 = 0;\n        puVar19 = (undefined *)(IVar7 & 0xffffffff);\n        local_d8 = _TtC10TheClapper19AudioMonitorService::lastOnsetTime;\n        local_d0 = _TtC10TheClapper19AudioMonitorService::minimumAmplitude;\n        local_c8 = lVar17 << 2;\n        local_c0 = _TtC10TheClapper19AudioMonitorService::onsetThreshold;\n        local_e0 = _TtC10TheClapper19AudioMonitorService::debounceInterval;\n        local_f0 = puVar19;\n        do {\n          bVar3 = SCARRY8(lVar16,lVar17);\n          lVar18 = lVar16 + lVar17;\n          DAT_100050868 = DAT_100050868 + 1;\n          IVar7 = objc_stub::frameLength(local_b8);\n          lVar1 = (IVar7 & 0xffffffff) - lVar16;\n          if (SBORROW8(IVar7 & 0xffffffff,lVar16)) {\n                    /* WARNING: Does not return */\n            pcVar2 = (code *)SoftwareBreakpoint(1,0x1000243e0);\n            (*pcVar2)();\n          }\n          local_b0 = (undefined *)((ulong)local_b0 & 0xffffffff00000000);\n          if (lVar1 < 0) {\n                    /* WARNING: Does not return */\n            pcVar2 = (code *)SoftwareBreakpoint(1,0x1000243e4);\n            (*pcVar2)();\n          }\n          if (lVar17 <= lVar1) {\n            lVar1 = lVar17;\n          }\n          _vDSP_measqv(lVar15,1,&local_b0,lVar1);\n          lVar1 = local_e8;\n          fVar20 = SQRT(local_b0._0_4_);\n          fVar22 = *(float *)(unaff_x20 + lVar13);\n          local_b0 = (undefined *)CONCAT44(local_b0._4_4_,fVar20);\n          *(float *)(unaff_x20 + lVar13) = fVar20 * 0.3 + fVar22 * 0.7;\n          if (((*(float *)(local_c0 + unaff_x20) < fVar20 - fVar22) &&\n              (___profc__Users_djm__hermes_kanban_boards_edgeless_workspaces_t_24628b96_source_TheClapper_Services_AudioMonitorService_swift__s10TheClapper19AudioMonitorServiceC13processBuffer33_D47E894B1545D8C46150613F0BDCCCB0LL_4timeySo16AVAudioPCMBufferC_So0P4TimeCtFSbyKXEfu_\n                    = ___profc__Users_djm__hermes_kanban_boards_edgeless_workspaces_t_24628b96_source_TheClapper_Services_AudioMonitorService_swift__s10TheClapper19AudioMonitorServiceC13processBuffer33_D47E894B1545D8C46150613F0BDCCCB0LL_4timeySo16AVAudioPCMBufferC_So0P4TimeCtFSbyKXEfu_\n                      + 1, *(float *)(local_d0 + unaff_x20) < fVar20)) &&\n             (___profc__Users_djm__hermes_kanban_boards_edgeless_workspaces_t_24628b96_source_TheClapper_Services_AudioMonitorService_swift__s10TheClapper19AudioMonitorServiceC13processBuffer33_D47E894B1545D8C46150613F0BDCCCB0LL_4timeySo16AVAudioPCMBufferC_So0P4TimeCtFSbyKXEfu0_\n                   = ___profc__Users_djm__hermes_kanban_boards_edgeless_workspaces_t_24628b96_source_TheClapper_Services_AudioMonitorService_swift__s10TheClapper19AudioMonitorServiceC13processBuffer33_D47E894B1545D8C46150613F0BDCCCB0LL_4timeySo16AVAudioPCMBufferC_So0P4TimeCtFSbyKXEfu0_\n                     + 1,\n             *(double *)(unaff_x20 + local_e0) < dVar21 - *(double *)(unaff_x20 + (long)local_d8)))\n          {\n            DAT_100050870 = DAT_100050870 + 1;\n            *(double *)(unaff_x20 + (long)local_d8) = dVar21;\n            Foundation::Date::init(dVar21);\n            Combine::PassthroughSubject::send();\n            puVar19 = local_f0;\n            __outlined_destroy_of_TheClapper_AudioMonitorService_TransientEvent(lVar1);\n          }\n          lVar15 = lVar15 + local_c8;\n          lVar16 = lVar16 + lVar17;\n        } while (lVar18 < (long)puVar19 && !bVar3);\n      }\n      _swift_release(local_f8);\n      _swift_release(local_100);\n      goto LAB_10002438c;\n    }\n  }\n  DAT_100050860 = DAT_100050860 + 1;\nLAB_10002438c:\n  if (*(long *)PTR____stack_chk_guard_100048410 == local_80) {\n    return;\n  }\n                    /* WARNING: Subroutine does not return */\n  ___stack_chk_fail();\n}\n\n",
+    "limitations": [
+      "Unresolved computed or indirect flows without target addresses are not represented as reference edges.",
+      "Thunk and external classifications are Ghidra FunctionManager observations; they do not resolve targetless calls.",
+      "Pseudocode and assembly are Ghidra-specific representations, not original source or Hopper-equivalent text.",
+      "Synthetic Ghidra entry-point references without actionable memory sources are omitted."
+    ]
+  }
+}

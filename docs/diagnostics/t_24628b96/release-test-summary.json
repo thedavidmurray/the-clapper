@@ -1,0 +1,36 @@
+{
+  "devicesAndConfigurations": [
+    {
+      "device": {
+        "architecture": "arm64",
+        "deviceId": "9FB52DEE-23B0-43F1-B9BD-111ACE7EE6F5",
+        "deviceName": "iPhone 16 Pro (26.5)",
+        "modelName": "iPhone 16 Pro",
+        "osBuildNumber": "23F77",
+        "osVersion": "26.5",
+        "platform": "iOS Simulator"
+      },
+      "expectedFailures": 0,
+      "failedTests": 0,
+      "passedTests": 25,
+      "skippedTests": 0,
+      "testPlanConfiguration": {
+        "configurationId": "1",
+        "configurationName": "Test Scheme Action"
+      }
+    }
+  ],
+  "environmentDescription": "TheClapperTests \u00b7 Built with macOS 26.5.2",
+  "expectedFailures": 0,
+  "failedTests": 0,
+  "finishTime": 1791609330.894,
+  "passedTests": 25,
+  "result": "Passed",
+  "skippedTests": 0,
+  "startTime": 1791609307.937,
+  "statistics": [],
+  "testFailures": [],
+  "title": "Test - TheClapperTests",
+  "topInsights": [],
+  "totalTestCount": 25
+}

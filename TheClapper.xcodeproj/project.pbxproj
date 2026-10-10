@@ -33,6 +33,7 @@
 		A20001 /* GestureRecognizerServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20001; };
 		A20002 /* GestureMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20002; };
 		A20003 /* ActionDispatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20003; };
+		A20004 /* AudioPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20004; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -76,6 +77,7 @@
 		B20001 /* GestureRecognizerServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureRecognizerServiceTests.swift; sourceTree = "<group>"; };
 		B20002 /* GestureMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GestureMappingTests.swift; sourceTree = "<group>"; };
 		B20003 /* ActionDispatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionDispatcherTests.swift; sourceTree = "<group>"; };
+		B20004 /* AudioPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPipelineTests.swift; sourceTree = "<group>"; };
 		C20001 /* TheClapperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TheClapperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -242,6 +244,7 @@
 				B20001 /* GestureRecognizerServiceTests.swift */,
 				B20002 /* GestureMappingTests.swift */,
 				B20003 /* ActionDispatcherTests.swift */,
+				B20004 /* AudioPipelineTests.swift */,
 			);
 			path = TheClapperTests;
 			sourceTree = "<group>";
@@ -369,6 +372,7 @@
 				A20001 /* GestureRecognizerServiceTests.swift in Sources */,
 				A20002 /* GestureMappingTests.swift in Sources */,
 				A20003 /* ActionDispatcherTests.swift in Sources */,
+				A20004 /* AudioPipelineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

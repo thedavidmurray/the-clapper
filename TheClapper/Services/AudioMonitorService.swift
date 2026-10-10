@@ -3,8 +3,9 @@ import Accelerate
 import Combine
 
 /// Stage 1: Low-latency amplitude monitoring with onset detection.
-/// Uses vDSP for vectorized audio processing. Detects transient peaks (<10ms)
-/// and emits onset events when amplitude derivative exceeds threshold.
+/// Uses vDSP for vectorized audio processing. Measures onset energy in 2ms
+/// windows so short claps are not averaged away by a much longer audio tap.
+/// Delivery latency still depends on the audio engine's callback buffer size.
 final class AudioMonitorService: ObservableObject {
     @Published var currentRMS: Float = 0
     @Published var currentPeak: Float = 0
@@ -85,6 +86,7 @@ final class AudioMonitorService: ObservableObject {
         audioEngine?.stop()
         audioEngine = nil
         smoothedRMS = 0
+        lastOnsetTime = 0
         // Synchronous for the same reason as startListening: a stop immediately
         // followed by a start (e.g. route-change restart) must see isListening
         // false, not the stale async-mirrored value.
@@ -100,7 +102,8 @@ final class AudioMonitorService: ObservableObject {
     }
 
     private func processBuffer(_ buffer: AVAudioPCMBuffer, time _: AVAudioTime) {
-        guard let channelData = buffer.floatChannelData?[0] else { return }
+        guard buffer.frameLength > 0, buffer.format.sampleRate > 0,
+              let channelData = buffer.floatChannelData?[0] else { return }
         let frameLength = vDSP_Length(buffer.frameLength)
 
         // Vectorized RMS via Accelerate
@@ -112,10 +115,6 @@ final class AudioMonitorService: ObservableObject {
         var peak: Float = 0
         vDSP_maxmgv(channelData, 1, &peak, frameLength)
 
-        // Onset detection: smoothed derivative
-        let derivative = rms - smoothedRMS
-        smoothedRMS = smoothedRMS * (1 - smoothingFactor) + rms * smoothingFactor
-
         // Downsample buffer for waveform display (64 points)
         let samples = downsampleForWaveform(channelData, frameCount: Int(buffer.frameLength))
 
@@ -125,14 +124,26 @@ final class AudioMonitorService: ObservableObject {
             self.waveformSamples = samples
         }
 
-        // Transient detection with debounce
+        // A clap's attack can occupy only ~1ms of a 21ms (or larger) tap.
+        // Whole-buffer RMS dilutes that attack below the sensitivity threshold
+        // even while the peak/waveform visibly spikes. Keep whole-buffer levels
+        // for display, but detect against short-window RMS and its noise floor.
+        let windowFrames = max(1, Int(buffer.format.sampleRate * 0.002))
         let now = Date().timeIntervalSince1970
-        if derivative > onsetThreshold
-            && rms > minimumAmplitude
-            && (now - lastOnsetTime) > debounceInterval {
+        for start in stride(from: 0, to: Int(buffer.frameLength), by: windowFrames) {
+            let count = min(windowFrames, Int(buffer.frameLength) - start)
+            var windowRMS: Float = 0
+            vDSP_measqv(channelData.advanced(by: start), 1, &windowRMS, vDSP_Length(count))
+            windowRMS = sqrtf(windowRMS)
+            let derivative = windowRMS - smoothedRMS
+            smoothedRMS = smoothedRMS * (1 - smoothingFactor) + windowRMS * smoothingFactor
 
-            lastOnsetTime = now
-            transientDetected.send(TransientEvent(timestamp: Date()))
+            if derivative > onsetThreshold
+                && windowRMS > minimumAmplitude
+                && (now - lastOnsetTime) > debounceInterval {
+                lastOnsetTime = now
+                transientDetected.send(TransientEvent(timestamp: Date(timeIntervalSince1970: now)))
+            }
         }
     }
 

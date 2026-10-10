@@ -1,0 +1,42 @@
+
+SOURCE: evidence/red.log
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:44: error: -[TheClapperTests.AudioPipelineTests testOneMillisecondPulseIsDetectedAcrossTapSizesAndWindowBoundaries] : XCTAssertEqual failed: ("0") is not equal to ("1") - frames=1024, pulseStart=0
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:44: error: -[TheClapperTests.AudioPipelineTests testOneMillisecondPulseIsDetectedAcrossTapSizesAndWindowBoundaries] : XCTAssertEqual failed: ("0") is not equal to ("1") - frames=1024, pulseStart=72
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:44: error: -[TheClapperTests.AudioPipelineTests testOneMillisecondPulseIsDetectedAcrossTapSizesAndWindowBoundaries] : XCTAssertEqual failed: ("0") is not equal to ("1") - frames=1024, pulseStart=1000
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:44: error: -[TheClapperTests.AudioPipelineTests testOneMillisecondPulseIsDetectedAcrossTapSizesAndWindowBoundaries] : XCTAssertEqual failed: ("0") is not equal to ("1") - frames=4096, pulseStart=0
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:44: error: -[TheClapperTests.AudioPipelineTests testOneMillisecondPulseIsDetectedAcrossTapSizesAndWindowBoundaries] : XCTAssertEqual failed: ("0") is not equal to ("1") - frames=4096, pulseStart=72
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:44: error: -[TheClapperTests.AudioPipelineTests testOneMillisecondPulseIsDetectedAcrossTapSizesAndWindowBoundaries] : XCTAssertEqual failed: ("0") is not equal to ("1") - frames=4096, pulseStart=1000
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:99: error: -[TheClapperTests.AudioPipelineTests testPCMThroughViewModelRecognizesClapAndStartsMappedTimer] : Asynchronous wait failed: Exceeded timeout of 2 seconds, with unfulfilled expectations: "PCM -> onset -> single clap -> running timer".
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:100: error: -[TheClapperTests.AudioPipelineTests testPCMThroughViewModelRecognizesClapAndStartsMappedTimer] : XCTAssertEqual failed: ("0") is not equal to ("1")
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:101: error: -[TheClapperTests.AudioPipelineTests testPCMThroughViewModelRecognizesClapAndStartsMappedTimer] : XCTAssertEqual failed: ("nil") is not equal to ("Optional(TheClapper.GestureType.singleClap)")
+/Users/djm/.hermes/kanban/boards/edgeless/workspaces/t_24628b96/source/TheClapperTests/AudioPipelineTests.swift:102: error: -[TheClapperTests.AudioPipelineTests testPCMThroughViewModelRecognizesClapAndStartsMappedTimer] : XCTAssertTrue failed
+CLAPPER_PIPELINE: PCM(48/1024 frames, amplitude=0.3) -> onset=0 -> gesture=nil -> timerRunning=false
+	 Executed 5 tests, with 10 failures (0 unexpected) in 2.522 (2.524) seconds
+	 Executed 5 tests, with 10 failures (0 unexpected) in 2.522 (2.524) seconds
+	 Executed 5 tests, with 10 failures (0 unexpected) in 2.522 (2.524) seconds
+
+SOURCE: evidence/green.log
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.015 (0.017) seconds
+CLAPPER_PIPELINE: PCM(48/1024 frames, amplitude=0.3) -> onset=1 -> gesture=Optional(TheClapper.GestureType.singleClap) -> timerRunning=true
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.783 (0.785) seconds
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.011 (0.012) seconds
+	 Executed 8 tests, with 0 failures (0 unexpected) in 5.233 (5.240) seconds
+	 Executed 24 tests, with 0 failures (0 unexpected) in 6.042 (6.057) seconds
+	 Executed 24 tests, with 0 failures (0 unexpected) in 6.042 (6.059) seconds
+** TEST SUCCEEDED **
+
+SOURCE: evidence/final-release-tests.log
+	 Executed 5 tests, with 0 failures (0 unexpected) in 0.011 (0.022) seconds
+CLAPPER_PIPELINE: PCM(48/1024 frames, amplitude=0.3) -> onset=1 -> gesture=Optional(TheClapper.GestureType.singleClap) -> timerRunning=true
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.772 (0.777) seconds
+	 Executed 6 tests, with 0 failures (0 unexpected) in 0.011 (0.013) seconds
+	 Executed 8 tests, with 0 failures (0 unexpected) in 5.226 (5.231) seconds
+	 Executed 25 tests, with 0 failures (0 unexpected) in 6.020 (6.049) seconds
+	 Executed 25 tests, with 0 failures (0 unexpected) in 6.020 (6.049) seconds
+** TEST SUCCEEDED **
+
+SOURCE: evidence/final-release-build.log
+** BUILD SUCCEEDED **
+
+SOURCE: evidence/final-launch.txt
+com.edgeless.theclapper: 35269

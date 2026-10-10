@@ -1,0 +1,42 @@
+{
+  "baseline-arm64.macho": {
+    "sha256": "95ef7bf2b808da74c33b3eac7b12153e128351543c745492db34fef9532f00f3",
+    "bytes": 1419432
+  },
+  "final-fixed-arm64.macho": {
+    "sha256": "dbb7623c726173f3f4f7908ffb6ed171b9b0a57c2914d962da3d5f442db71ed8",
+    "bytes": 1419544
+  },
+  "baseline-ghidra-thin.json": {
+    "sha256": "14004ed4ef3ed89a05a3aba5fad5acb2b6a9f74c601b6eb98ddf3aa4b5b571ea",
+    "bytes": 2998650
+  },
+  "final-fixed-ghidra.json": {
+    "sha256": "a11f316ea5eb7e5641e6c47df99cf20c4b876cd41032696c615a027cd0df4e39",
+    "bytes": 4757084
+  },
+  "red.log": {
+    "sha256": "e512f4a0e29ddc3c28139c020d0dc3fc44e54d92e80150043e77951422b848c0",
+    "bytes": 177214
+  },
+  "final-release-tests.log": {
+    "sha256": "fcc952ccd39ac79c4bb60fd8b2fee10ce505950bd246eef5f0ea3aff1f20074b",
+    "bytes": 214090
+  },
+  "final-release-build.log": {
+    "sha256": "1b19cbdc717633b8f00376d24b4cd1608bee6d38b86ea942830b8eb7dfe3f67c",
+    "bytes": 106628
+  },
+  "source/TheClapper/Services/AudioMonitorService.swift": {
+    "sha256": "7d319a0bfa427d6fba96a38230d7af11b02c591723b0e39bbe46dd6f0e1ebb14",
+    "bytes": 6705
+  },
+  "source/TheClapperTests/AudioPipelineTests.swift": {
+    "sha256": "03025546b559a9ca5ec56e1e0c4875c75a59468e808da179a874d4e97ed32227",
+    "bytes": 5370
+  },
+  "source/TheClapper.xcodeproj/project.pbxproj": {
+    "sha256": "23725ed4b2c53506a70fb9caa4bbcc6410f1c8eedbca339b84759f7d8474fa5a",
+    "bytes": 25626
+  }
+}
